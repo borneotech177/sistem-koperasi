@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Koperasi - Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center">
+
+  <div class="bg-gray-800 rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
+    
+    <!-- Logo -->
+    <div class="text-center mb-8">
+      <div class="text-4xl mb-2">🏦</div>
+      <h1 class="text-2xl font-bold text-white">Sistem Koperasi</h1>
+      <p class="text-gray-400 text-sm mt-1">Masuk ke dashboard anda</p>
+    </div>
+
+    <!-- Alert -->
+    <div id="alert" class="hidden mb-4 p-3 rounded-lg text-sm"></div>
+
+    <!-- Form -->
+    <div class="space-y-4">
+      <div>
+        <label class="text-gray-300 text-sm mb-1 block">Username</label>
+        <input id="username" type="text" placeholder="Masukkan username"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none focus:ring-2 focus:ring-purple-500"/>
+      </div>
+      <div>
+        <label class="text-gray-300 text-sm mb-1 block">Password</label>
+        <input id="password" type="password" placeholder="Masukkan password"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none focus:ring-2 focus:ring-purple-500"/>
+      </div>
+      <button onclick="login()"
+        class="w-full bg-purple-600 hover:bg-purple-700 text-white 
+        font-semibold py-3 rounded-lg transition duration-200">
+        Masuk
+      </button>
+    </div>
+
+    <p class="text-center text-gray-500 text-xs mt-6">
+      BORNEO-TECH © 2026
+    </p>
+  </div>
+
+  <script>
+    const API = 'https://sistem-koperasi-production.up.railway.app';
+
+    async function login() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const alert = document.getElementById('alert');
+
+      if (!username || !password) {
+        showAlert('Username dan password wajib diisi!', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/api/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          window.location.href = 'dashboard.html';
+        } else {
+          showAlert(data.message, 'error');
+        }
+      } catch (err) {
+        showAlert('Gagal terhubung ke server!', 'error');
+      }
+    }
+
+    function showAlert(msg, type) {
+      const alert = document.getElementById('alert');
+      alert.textContent = msg;
+      alert.className = `mb-4 p-3 rounded-lg text-sm ${
+        type === 'error' 
+          ? 'bg-red-900 text-red-300' 
+          : 'bg-green-900 text-green-300'
+      }`;
+      alert.classList.remove('hidden');
+    }
+
+    // Enter key
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') login();
+    });
+  </script>
+
+</body>
+</html>
