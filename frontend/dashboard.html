@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Sistem Koperasi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-gray-800 px-6 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">🏦</span>
+      <span class="text-white font-bold">Sistem Koperasi</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="namaUser" class="text-gray-300 text-sm"></span>
+      <button onclick="logout()"
+        class="bg-red-600 hover:bg-red-700 text-white text-sm 
+        px-3 py-1 rounded-lg">Keluar</button>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <div class="p-6">
+
+    <!-- Selamat datang -->
+    <div class="mb-6">
+      <h1 class="text-white text-2xl font-bold">Dashboard</h1>
+      <p id="roleUser" class="text-gray-400 text-sm"></p>
+    </div>
+
+    <!-- Menu Cards -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      
+      <div onclick="goto('anggota.html')"
+        class="bg-green-800 hover:bg-green-700 rounded-xl p-5 
+        cursor-pointer transition">
+        <div class="text-3xl mb-2">👥</div>
+        <div class="text-white font-semibold">Anggota</div>
+        <div class="text-green-300 text-xs">Data & Simpanan</div>
+      </div>
+
+      <div onclick="goto('pinjaman.html')"
+        class="bg-blue-800 hover:bg-blue-700 rounded-xl p-5 
+        cursor-pointer transition">
+        <div class="text-3xl mb-2">💰</div>
+        <div class="text-white font-semibold">Pinjaman</div>
+        <div class="text-blue-300 text-xs">KSP / KSPPS</div>
+      </div>
+
+      <div onclick="goto('toko.html')"
+        class="bg-yellow-800 hover:bg-yellow-700 rounded-xl p-5 
+        cursor-pointer transition">
+        <div class="text-3xl mb-2">🛒</div>
+        <div class="text-white font-semibold">ePOS Toko</div>
+        <div class="text-yellow-300 text-xs">Penjualan & Stok</div>
+      </div>
+
+      <div onclick="goto('kantin.html')"
+        class="bg-orange-800 hover:bg-orange-700 rounded-xl p-5 
+        cursor-pointer transition">
+        <div class="text-3xl mb-2">🍽️</div>
+        <div class="text-white font-semibold">eKantin</div>
+        <div class="text-orange-300 text-xs">Transaksi Kantin</div>
+      </div>
+
+      <div onclick="goto('rfid.html')"
+        class="bg-indigo-800 hover:bg-indigo-700 rounded-xl p-5 
+        cursor-pointer transition">
+        <div class="text-3xl mb-2">💳</div>
+        <div class="text-white font-semibold">RFID Member</div>
+        <div class="text-indigo-300 text-xs">Kartu & Saldo</div>
+      </div>
+
+      <div onclick="goto('laporan.html')"
+        class="bg-purple-800 hover:bg-purple-700 rounded-xl p-5 
+        cursor-pointer transition">
+        <div class="text-3xl mb-2">📊</div>
+        <div class="text-white font-semibold">Laporan</div>
+        <div class="text-purple-300 text-xs">Rekap & Statistik</div>
+      </div>
+
+    </div>
+
+    <!-- Info -->
+    <div class="bg-gray-800 rounded-xl p-4">
+      <h2 class="text-white font-semibold mb-3">Info Sistem</h2>
+      <div class="space-y-2">
+        <div class="flex justify-between">
+          <span class="text-gray-400 text-sm">Status Backend</span>
+          <span id="statusBackend" class="text-sm">⏳ Mengecek...</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400 text-sm">Database</span>
+          <span class="text-green-400 text-sm">✅ Supabase</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400 text-sm">Versi</span>
+          <span class="text-gray-300 text-sm">1.0.0</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const API = 'https://sistem-koperasi-production.up.railway.app';
+
+    // Cek login
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) window.location.href = 'index.html';
+
+    // Tampilkan info user
+    document.getElementById('namaUser').textContent = user.nama;
+    document.getElementById('roleUser').textContent = 
+      `Role: ${user.role.toUpperCase()}`;
+
+    // Cek status backend
+    fetch(`${API}/`)
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById('statusBackend').textContent = '✅ Online';
+        document.getElementById('statusBackend').className = 
+          'text-green-400 text-sm';
+      })
+      .catch(() => {
+        document.getElementById('statusBackend').textContent = '❌ Offline';
+        document.getElementById('statusBackend').className = 
+          'text-red-400 text-sm';
+      });
+
+    function goto(page) {
+      window.location.href = page;
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    }
+  </script>
+
+</body>
+</html>
