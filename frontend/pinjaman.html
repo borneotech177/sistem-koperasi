@@ -3,214 +3,450 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pinjaman - Sistem Koperasi</title>
+  <title>Pinjaman - SisKop</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
 </head>
-<body class="bg-gray-900 min-h-screen">
+<body class="bg-gray-50 min-h-screen">
 
-  <!-- Navbar -->
-  <nav class="bg-gray-800 px-4 py-3 flex items-center gap-3">
-    <button onclick="history.back()" 
-      class="text-gray-400 hover:text-white text-xl">←</button>
-    <span class="text-white font-bold">💰 Pinjaman KSP</span>
-  </nav>
+  <div id="sidebar"></div>
 
-  <div class="p-4">
+  <div class="lg:ml-64 min-h-screen">
 
-    <!-- Tabs -->
-    <div class="flex gap-2 mb-4">
-      <button onclick="switchTab('list')" id="tab-list"
-        class="flex-1 py-2 rounded-xl text-sm font-semibold
-        bg-blue-600 text-white">
-        Daftar Pinjaman</button>
-      <button onclick="switchTab('simulasi')" id="tab-simulasi"
-        class="flex-1 py-2 rounded-xl text-sm font-semibold
-        bg-gray-700 text-gray-300">
-        Simulasi Kredit</button>
-    </div>
+    <div id="navbar"></div>
 
-    <!-- Tab: List Pinjaman -->
-    <div id="content-list">
-      <button onclick="showFormPinjaman()"
-        class="w-full bg-blue-600 hover:bg-blue-700 text-white 
-        font-semibold py-3 rounded-xl mb-4">
-        + Ajukan Pinjaman Baru
-      </button>
+    <main class="p-4 lg:p-8">
 
-      <div id="listPinjaman" class="space-y-3">
-        <div class="text-gray-400 text-center py-8">⏳ Memuat data...</div>
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-gray-800 font-bold text-xl">Pinjaman KSP</h2>
+          <p class="text-gray-400 text-sm mt-0.5">
+            Kelola simpan pinjam anggota</p>
+        </div>
+        <button onclick="showFormPinjaman()"
+          class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i>
+          Ajukan
+        </button>
       </div>
-    </div>
 
-    <!-- Tab: Simulasi -->
-    <div id="content-simulasi" class="hidden">
-      <div class="bg-gray-800 rounded-xl p-4 space-y-3">
-        <h3 class="text-white font-semibold">🧮 Kalkulator Kredit</h3>
-        
-        <div>
-          <label class="text-gray-400 text-sm">Jumlah Pinjaman (Rp)</label>
-          <input id="sim_jumlah" type="number" placeholder="5000000"
-            oninput="hitung()"
-            class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
-            focus:outline-none mt-1"/>
-        </div>
-        <div>
-          <label class="text-gray-400 text-sm">Tenor (Bulan)</label>
-          <input id="sim_tenor" type="number" placeholder="12"
-            oninput="hitung()"
-            class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
-            focus:outline-none mt-1"/>
-        </div>
-        <div>
-          <label class="text-gray-400 text-sm">Bunga per Bulan (%)</label>
-          <input id="sim_bunga" type="number" placeholder="1.5"
-            oninput="hitung()" value="1.5"
-            class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
-            focus:outline-none mt-1"/>
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-5 bg-gray-100 p-1 rounded-xl">
+        <button onclick="switchTab('list')" id="tab-list"
+          class="flex-1 py-2 rounded-lg text-sm font-semibold
+          bg-white text-gray-800 shadow-sm transition">
+          <i class="fa-solid fa-list mr-1"></i>
+          Daftar Pinjaman
+        </button>
+        <button onclick="switchTab('simulasi')" id="tab-simulasi"
+          class="flex-1 py-2 rounded-lg text-sm font-semibold
+          text-gray-500 transition">
+          <i class="fa-solid fa-calculator mr-1"></i>
+          Simulasi Kredit
+        </button>
+      </div>
+
+      <!-- Tab List -->
+      <div id="content-list">
+
+        <!-- Stat -->
+        <div class="grid grid-cols-3 gap-3 mb-4">
+          <div class="card p-3 text-center">
+            <div id="countTotal"
+              class="text-xl font-bold text-gray-800">-</div>
+            <div class="text-gray-400 text-xs mt-0.5">Total</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div id="countBerjalan"
+              class="text-xl font-bold text-blue-600">-</div>
+            <div class="text-gray-400 text-xs mt-0.5">Berjalan</div>
+          </div>
+          <div class="card p-3 text-center">
+            <div id="countLunas"
+              class="text-xl font-bold text-green-600">-</div>
+            <div class="text-gray-400 text-xs mt-0.5">Lunas</div>
+          </div>
         </div>
 
-        <!-- Hasil -->
-        <div id="hasilSimulasi" class="hidden bg-gray-700 rounded-xl p-4 
-          space-y-2 mt-2">
-          <div class="flex justify-between">
-            <span class="text-gray-400 text-sm">Angsuran/Bulan</span>
-            <span id="res_angsuran" class="text-white font-bold"></span>
+        <!-- Tabel Desktop -->
+        <div class="card hidden lg:block overflow-hidden">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>No. Pengajuan</th>
+                <th>Anggota</th>
+                <th>Jumlah</th>
+                <th>Tenor</th>
+                <th>Angsuran/Bln</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr>
+                <td colspan="7" class="text-center py-8">
+                  <i class="fa-solid fa-spinner fa-spin 
+                    text-gray-300 text-2xl block mb-2"></i>
+                  <span class="text-gray-400 text-sm">
+                    Memuat data...</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- List Mobile -->
+        <div id="listMobile" class="lg:hidden space-y-3">
+          <div class="card p-4 text-center">
+            <i class="fa-solid fa-spinner fa-spin 
+              text-gray-300 text-xl"></i>
+            <p class="text-gray-400 text-sm mt-2">Memuat...</p>
           </div>
-          <div class="flex justify-between">
-            <span class="text-gray-400 text-sm">Total Bayar</span>
-            <span id="res_total" class="text-yellow-400"></span>
+        </div>
+
+      </div>
+
+      <!-- Tab Simulasi -->
+      <div id="content-simulasi" class="hidden">
+        <div class="card p-5 max-w-lg">
+          <h3 class="text-gray-800 font-bold mb-4">
+            <i class="fa-solid fa-calculator text-green-600 mr-2"></i>
+            Kalkulator Angsuran
+          </h3>
+
+          <div class="space-y-4">
+            <div>
+              <label class="text-gray-600 text-sm font-medium 
+                mb-1 block">Jumlah Pinjaman (Rp)</label>
+              <input id="sim_jumlah" type="number"
+                placeholder="Contoh: 5000000"
+                oninput="hitung()" class="input"/>
+            </div>
+            <div>
+              <label class="text-gray-600 text-sm font-medium 
+                mb-1 block">Tenor (Bulan)</label>
+              <input id="sim_tenor" type="number"
+                placeholder="Contoh: 12"
+                oninput="hitung()" class="input"/>
+            </div>
+            <div>
+              <label class="text-gray-600 text-sm font-medium 
+                mb-1 block">Bunga per Bulan (%)</label>
+              <input id="sim_bunga" type="number"
+                placeholder="Contoh: 1.5" value="1.5"
+                oninput="hitung()" class="input"/>
+            </div>
           </div>
-          <div class="flex justify-between">
-            <span class="text-gray-400 text-sm">Total Bunga</span>
-            <span id="res_bunga" class="text-red-400"></span>
+
+          <!-- Hasil -->
+          <div id="hasilSimulasi" 
+            class="hidden mt-5 bg-green-50 rounded-xl p-4 
+            border border-green-200 space-y-3">
+            <p class="text-green-700 text-sm font-semibold">
+              Hasil Simulasi:</p>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 text-sm">
+                Angsuran/Bulan</span>
+              <span id="res_angsuran" 
+                class="font-bold text-gray-800 text-lg"></span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 text-sm">Total Bayar</span>
+              <span id="res_total" 
+                class="font-semibold text-yellow-600"></span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-gray-600 text-sm">Total Bunga</span>
+              <span id="res_bunga" 
+                class="font-semibold text-red-500"></span>
+            </div>
+            <div class="flex justify-between items-center 
+              pt-2 border-t border-green-200">
+              <span class="text-gray-600 text-sm">
+                Pokok Pinjaman</span>
+              <span id="res_pokok" 
+                class="font-semibold text-green-600"></span>
+            </div>
           </div>
+
         </div>
       </div>
-    </div>
 
+    </main>
   </div>
 
   <!-- Modal Form Pinjaman -->
-  <div id="modalPinjaman" class="hidden fixed inset-0 bg-black 
-    bg-opacity-70 flex items-end z-50">
-    <div class="bg-gray-800 rounded-t-2xl w-full p-6 
-      max-h-screen overflow-y-auto">
-      
-      <h2 class="text-white font-bold text-lg mb-4">
-        Ajukan Pinjaman</h2>
-
-      <div class="space-y-3">
-        <select id="p_anggota"
-          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3">
-          <option value="">Pilih Anggota</option>
-        </select>
-        <input id="p_jumlah" type="number" placeholder="Jumlah Pinjaman (Rp)"
-          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
-          focus:outline-none"/>
-        <input id="p_tenor" type="number" placeholder="Tenor (Bulan)"
-          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
-          focus:outline-none"/>
-        <input id="p_bunga" type="number" placeholder="Bunga (%)" value="1.5"
-          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
-          focus:outline-none"/>
-        <textarea id="p_tujuan" placeholder="Tujuan Pinjaman"
-          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
-          focus:outline-none" rows="2"></textarea>
+  <div id="modalPinjaman" class="hidden modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-gray-800 font-bold text-lg">
+          Ajukan Pinjaman</h3>
+        <button onclick="hidePinjaman()"
+          class="text-gray-400 hover:text-gray-600 w-8 h-8 
+          flex items-center justify-center rounded-lg 
+          hover:bg-gray-100">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
 
-      <div class="flex gap-3 mt-4">
+      <div class="space-y-3">
+        <div>
+          <label class="text-gray-600 text-sm font-medium 
+            mb-1 block">Anggota *</label>
+          <select id="p_anggota" class="input">
+            <option value="">Pilih Anggota</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-gray-600 text-sm font-medium 
+            mb-1 block">Jumlah Pinjaman (Rp) *</label>
+          <input id="p_jumlah" type="number"
+            placeholder="5000000" class="input"/>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-gray-600 text-sm font-medium 
+              mb-1 block">Tenor (Bulan) *</label>
+            <input id="p_tenor" type="number"
+              placeholder="12" class="input"/>
+          </div>
+          <div>
+            <label class="text-gray-600 text-sm font-medium 
+              mb-1 block">Bunga (%/bln)</label>
+            <input id="p_bunga" type="number"
+              value="1.5" class="input"/>
+          </div>
+        </div>
+        <div>
+          <label class="text-gray-600 text-sm font-medium 
+            mb-1 block">Tujuan Pinjaman</label>
+          <textarea id="p_tujuan" placeholder="Tujuan pinjaman..."
+            class="input" rows="2"></textarea>
+        </div>
+        <div>
+          <label class="text-gray-600 text-sm font-medium 
+            mb-1 block">Agunan</label>
+          <input id="p_agunan" type="text"
+            placeholder="Agunan (opsional)" class="input"/>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-5">
         <button onclick="hidePinjaman()"
-          class="flex-1 bg-gray-600 text-white py-3 rounded-xl">
-          Batal</button>
-        <button onclick="ajukanPinjaman()"
-          class="flex-1 bg-blue-600 text-white font-semibold 
-          py-3 rounded-xl">Ajukan</button>
+          class="btn btn-secondary flex-1">Batal</button>
+        <button onclick="ajukanPinjaman()" id="btnAjukan"
+          class="btn btn-primary flex-1">
+          <i class="fa-solid fa-paper-plane"></i>
+          Ajukan
+        </button>
       </div>
     </div>
   </div>
 
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../components/sidebar.js"></script>
+  <script src="../components/navbar.js"></script>
+
   <script>
-    const API = 'https://sistem-koperasi-production.up.railway.app';
-    const token = localStorage.getItem('token');
-    if (!token) window.location.href = 'index.html';
+    Auth.check()
+
+    document.getElementById('sidebar').innerHTML =
+      renderSidebar('pinjaman')
+    document.getElementById('navbar').innerHTML =
+      renderNavbar('Pinjaman KSP', 'pinjaman')
+    startClock()
+
+    let dataPinjaman = []
 
     function switchTab(tab) {
-      document.getElementById('content-list').classList.toggle('hidden', tab !== 'list');
-      document.getElementById('content-simulasi').classList.toggle('hidden', tab !== 'simulasi');
-      document.getElementById('tab-list').className = `flex-1 py-2 rounded-xl text-sm font-semibold ${tab === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`;
-      document.getElementById('tab-simulasi').className = `flex-1 py-2 rounded-xl text-sm font-semibold ${tab === 'simulasi' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`;
+      const isList = tab === 'list'
+      document.getElementById('content-list')
+        .classList.toggle('hidden', !isList)
+      document.getElementById('content-simulasi')
+        .classList.toggle('hidden', isList)
+      document.getElementById('tab-list').className = 
+        `flex-1 py-2 rounded-lg text-sm font-semibold transition ${
+        isList ? 'bg-white text-gray-800 shadow-sm' 
+               : 'text-gray-500'}`
+      document.getElementById('tab-simulasi').className = 
+        `flex-1 py-2 rounded-lg text-sm font-semibold transition ${
+        !isList ? 'bg-white text-gray-800 shadow-sm' 
+                : 'text-gray-500'}`
     }
 
     function hitung() {
-      const jumlah = parseFloat(document.getElementById('sim_jumlah').value);
-      const tenor = parseInt(document.getElementById('sim_tenor').value);
-      const bunga = parseFloat(document.getElementById('sim_bunga').value);
+      const jumlah = parseFloat(
+        document.getElementById('sim_jumlah').value)
+      const tenor = parseInt(
+        document.getElementById('sim_tenor').value)
+      const bunga = parseFloat(
+        document.getElementById('sim_bunga').value)
 
-      if (!jumlah || !tenor || !bunga) return;
+      if (!jumlah || !tenor || !bunga) return
 
-      const bungaPerBulan = (jumlah * bunga / 100);
-      const angsuran = (jumlah / tenor) + bungaPerBulan;
-      const totalBayar = angsuran * tenor;
-      const totalBunga = totalBayar - jumlah;
+      const bungaPerBulan = jumlah * bunga / 100
+      const angsuran = (jumlah / tenor) + bungaPerBulan
+      const totalBayar = angsuran * tenor
+      const totalBunga = totalBayar - jumlah
 
-      document.getElementById('res_angsuran').textContent = formatRp(angsuran);
-      document.getElementById('res_total').textContent = formatRp(totalBayar);
-      document.getElementById('res_bunga').textContent = formatRp(totalBunga);
-      document.getElementById('hasilSimulasi').classList.remove('hidden');
-    }
-
-    function formatRp(n) {
-      return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+      document.getElementById('res_angsuran').textContent = 
+        Helper.rupiah(angsuran)
+      document.getElementById('res_total').textContent = 
+        Helper.rupiah(totalBayar)
+      document.getElementById('res_bunga').textContent = 
+        Helper.rupiah(totalBunga)
+      document.getElementById('res_pokok').textContent = 
+        Helper.rupiah(jumlah)
+      document.getElementById('hasilSimulasi')
+        .classList.remove('hidden')
     }
 
     async function loadPinjaman() {
       try {
-        const res = await fetch(`${API}/api/anggota`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        const anggota = data.data || [];
-
-        // Isi dropdown
-        const sel = document.getElementById('p_anggota');
+        // Load anggota untuk dropdown
+        const dataA = await Helper.fetch('/api/anggota')
+        const anggota = dataA.data || []
+        const sel = document.getElementById('p_anggota')
         anggota.forEach(a => {
-          sel.innerHTML += `<option value="${a.id}">${a.nama} - ${a.no_anggota}</option>`;
-        });
+          sel.innerHTML += `
+            <option value="${a.id}">
+              ${a.nama} — ${a.no_anggota}
+            </option>`
+        })
 
-        // Tampilkan list dummy (nanti connect ke API pinjaman)
-        document.getElementById('listPinjaman').innerHTML = 
-          '<div class="text-gray-400 text-center py-8">Belum ada data pinjaman</div>';
+        // Dummy data pinjaman (nanti connect ke API)
+        dataPinjaman = []
+        updateStats()
+        renderTable(dataPinjaman)
+        renderMobile(dataPinjaman)
 
       } catch {
-        document.getElementById('listPinjaman').innerHTML = 
-          '<div class="text-red-400 text-center py-8">❌ Gagal memuat</div>';
+        Helper.toast('Gagal memuat data!', 'error')
       }
+    }
+
+    function updateStats() {
+      const berjalan = dataPinjaman.filter(
+        p => p.status === 'berjalan').length
+      const lunas = dataPinjaman.filter(
+        p => p.status === 'lunas').length
+      document.getElementById('countTotal').textContent = 
+        dataPinjaman.length
+      document.getElementById('countBerjalan').textContent = berjalan
+      document.getElementById('countLunas').textContent = lunas
+    }
+
+    function renderTable(list) {
+      const tbody = document.getElementById('tableBody')
+      if (!list.length) {
+        tbody.innerHTML = `
+          <tr><td colspan="7" class="text-center py-8">
+            <i class="fa-solid fa-inbox text-gray-300 
+              text-2xl block mb-2"></i>
+            <span class="text-gray-400 text-sm">
+              Belum ada data pinjaman</span>
+          </td></tr>`
+        return
+      }
+      tbody.innerHTML = list.map(p => `
+        <tr>
+          <td class="font-medium text-blue-600">
+            ${p.no_pengajuan}</td>
+          <td>${p.nama_anggota || '-'}</td>
+          <td>${Helper.rupiah(p.pokok_pinjaman)}</td>
+          <td>${p.tenor_bulan} bln</td>
+          <td>${Helper.rupiah(p.total_angsuran / p.tenor_bulan)}</td>
+          <td>
+            <span class="badge ${
+              p.status === 'berjalan' ? 'badge-info' :
+              p.status === 'lunas' ? 'badge-success' : 'badge-danger'
+            }">${p.status}</span>
+          </td>
+          <td>
+            <button class="text-blue-500 hover:text-blue-700">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('')
+    }
+
+    function renderMobile(list) {
+      const el = document.getElementById('listMobile')
+      if (!list.length) {
+        el.innerHTML = `
+          <div class="card p-6 text-center">
+            <i class="fa-solid fa-inbox text-gray-300 
+              text-2xl mb-2"></i>
+            <p class="text-gray-400 text-sm">
+              Belum ada data pinjaman</p>
+          </div>`
+        return
+      }
+      el.innerHTML = list.map(p => `
+        <div class="card p-4">
+          <div class="flex justify-between items-start mb-2">
+            <div>
+              <div class="font-semibold text-gray-800">
+                ${p.nama_anggota}</div>
+              <div class="text-blue-600 text-sm">
+                ${p.no_pengajuan}</div>
+            </div>
+            <span class="badge ${
+              p.status === 'berjalan' ? 'badge-info' :
+              p.status === 'lunas' ? 'badge-success' : 'badge-danger'
+            }">${p.status}</span>
+          </div>
+          <div class="flex justify-between text-sm mt-2">
+            <span class="text-gray-500">Pokok</span>
+            <span class="font-semibold">
+              ${Helper.rupiah(p.pokok_pinjaman)}</span>
+          </div>
+          <div class="flex justify-between text-sm">
+            <span class="text-gray-500">Tenor</span>
+            <span>${p.tenor_bulan} bulan</span>
+          </div>
+        </div>
+      `).join('')
     }
 
     async function ajukanPinjaman() {
-      const anggota_id = document.getElementById('p_anggota').value;
-      const jumlah = document.getElementById('p_jumlah').value;
-      const tenor = document.getElementById('p_tenor').value;
-      const bunga = document.getElementById('p_bunga').value;
-      const tujuan = document.getElementById('p_tujuan').value;
+      const btn = document.getElementById('btnAjukan')
+      const anggota_id = document.getElementById('p_anggota').value
+      const jumlah = document.getElementById('p_jumlah').value
+      const tenor = document.getElementById('p_tenor').value
 
       if (!anggota_id || !jumlah || !tenor) {
-        alert('Anggota, jumlah, dan tenor wajib diisi!');
-        return;
+        Helper.toast('Anggota, jumlah, dan tenor wajib diisi!', 'error')
+        return
       }
 
-      alert('Fitur pengajuan pinjaman akan segera tersedia!');
-      hidePinjaman();
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'
+      btn.disabled = true
+
+      await new Promise(r => setTimeout(r, 500))
+      Helper.toast('Fitur segera tersedia!', 'warning')
+      hidePinjaman()
+
+      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Ajukan'
+      btn.disabled = false
     }
 
     function showFormPinjaman() {
-      document.getElementById('modalPinjaman').classList.remove('hidden');
-    }
-    function hidePinjaman() {
-      document.getElementById('modalPinjaman').classList.add('hidden');
+      document.getElementById('modalPinjaman')
+        .classList.remove('hidden')
     }
 
-    loadPinjaman();
+    function hidePinjaman() {
+      document.getElementById('modalPinjaman')
+        .classList.add('hidden')
+    }
+
+    loadPinjaman()
   </script>
 
 </body>
