@@ -5,135 +5,343 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Sistem Koperasi</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 </head>
-<body class="bg-gray-900 min-h-screen">
+<body class="bg-gray-950 min-h-screen">
 
-  <!-- Navbar -->
-  <nav class="bg-gray-800 px-6 py-4 flex justify-between items-center">
-    <div class="flex items-center gap-3">
-      <span class="text-2xl">🏦</span>
-      <span class="text-white font-bold">Sistem Koperasi</span>
-    </div>
-    <div class="flex items-center gap-3">
-      <span id="namaUser" class="text-gray-300 text-sm"></span>
-      <button onclick="logout()"
-        class="bg-red-600 hover:bg-red-700 text-white text-sm 
-        px-3 py-1 rounded-lg">Keluar</button>
-    </div>
-  </nav>
-
-  <!-- Main -->
-  <div class="p-6">
-
-    <!-- Selamat datang -->
-    <div class="mb-6">
-      <h1 class="text-white text-2xl font-bold">Dashboard</h1>
-      <p id="roleUser" class="text-gray-400 text-sm"></p>
-    </div>
-
-    <!-- Menu Cards -->
-    <div class="grid grid-cols-2 gap-4 mb-6">
-      
-      <div onclick="goto('anggota.html')"
-        class="bg-green-800 hover:bg-green-700 rounded-xl p-5 
-        cursor-pointer transition">
-        <div class="text-3xl mb-2">👥</div>
-        <div class="text-white font-semibold">Anggota</div>
-        <div class="text-green-300 text-xs">Data & Simpanan</div>
-      </div>
-
-      <div onclick="goto('pinjaman.html')"
-        class="bg-blue-800 hover:bg-blue-700 rounded-xl p-5 
-        cursor-pointer transition">
-        <div class="text-3xl mb-2">💰</div>
-        <div class="text-white font-semibold">Pinjaman</div>
-        <div class="text-blue-300 text-xs">KSP / KSPPS</div>
-      </div>
-
-      <div onclick="goto('toko.html')"
-        class="bg-yellow-800 hover:bg-yellow-700 rounded-xl p-5 
-        cursor-pointer transition">
-        <div class="text-3xl mb-2">🛒</div>
-        <div class="text-white font-semibold">ePOS Toko</div>
-        <div class="text-yellow-300 text-xs">Penjualan & Stok</div>
-      </div>
-
-      <div onclick="goto('kantin.html')"
-        class="bg-orange-800 hover:bg-orange-700 rounded-xl p-5 
-        cursor-pointer transition">
-        <div class="text-3xl mb-2">🍽️</div>
-        <div class="text-white font-semibold">eKantin</div>
-        <div class="text-orange-300 text-xs">Transaksi Kantin</div>
-      </div>
-
-      <div onclick="goto('rfid.html')"
-        class="bg-indigo-800 hover:bg-indigo-700 rounded-xl p-5 
-        cursor-pointer transition">
-        <div class="text-3xl mb-2">💳</div>
-        <div class="text-white font-semibold">RFID Member</div>
-        <div class="text-indigo-300 text-xs">Kartu & Saldo</div>
-      </div>
-
-      <div onclick="goto('laporan.html')"
-        class="bg-purple-800 hover:bg-purple-700 rounded-xl p-5 
-        cursor-pointer transition">
-        <div class="text-3xl mb-2">📊</div>
-        <div class="text-white font-semibold">Laporan</div>
-        <div class="text-purple-300 text-xs">Rekap & Statistik</div>
-      </div>
-
-    </div>
-
-    <!-- Info -->
-    <div class="bg-gray-800 rounded-xl p-4">
-      <h2 class="text-white font-semibold mb-3">Info Sistem</h2>
-      <div class="space-y-2">
-        <div class="flex justify-between">
-          <span class="text-gray-400 text-sm">Status Backend</span>
-          <span id="statusBackend" class="text-sm">⏳ Mengecek...</span>
+  <!-- Sidebar (Desktop) -->
+  <aside class="hidden lg:flex flex-col fixed left-0 top-0 h-full w-64 
+    bg-gray-900 border-r border-gray-800 z-40">
+    
+    <!-- Logo -->
+    <div class="px-6 py-6 border-b border-gray-800">
+      <div class="flex items-center gap-3">
+        <div class="bg-purple-600 rounded-xl p-2">
+          <i class="fa-solid fa-building-columns text-white text-xl"></i>
         </div>
-        <div class="flex justify-between">
-          <span class="text-gray-400 text-sm">Database</span>
-          <span class="text-green-400 text-sm">✅ Supabase</span>
-        </div>
-        <div class="flex justify-between">
-          <span class="text-gray-400 text-sm">Versi</span>
-          <span class="text-gray-300 text-sm">1.0.0</span>
+        <div>
+          <div class="text-white font-bold text-lg leading-tight">
+            SisKop</div>
+          <div class="text-gray-400 text-xs">Sistem Koperasi</div>
         </div>
       </div>
     </div>
 
+    <!-- Nav -->
+    <nav class="flex-1 px-4 py-4 space-y-1">
+      <a href="dashboard.html" 
+        class="flex items-center gap-3 px-4 py-3 rounded-xl 
+        bg-purple-600 text-white font-semibold">
+        <i class="fa-solid fa-house w-5 text-center"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="anggota.html"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl 
+        text-gray-400 hover:bg-gray-800 hover:text-white transition">
+        <i class="fa-solid fa-users w-5 text-center"></i>
+        <span>Anggota</span>
+      </a>
+      <a href="pinjaman.html"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl 
+        text-gray-400 hover:bg-gray-800 hover:text-white transition">
+        <i class="fa-solid fa-hand-holding-dollar w-5 text-center"></i>
+        <span>Pinjaman</span>
+      </a>
+      <a href="toko.html"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl 
+        text-gray-400 hover:bg-gray-800 hover:text-white transition">
+        <i class="fa-solid fa-cart-shopping w-5 text-center"></i>
+        <span>ePOS Toko</span>
+      </a>
+      <a href="kantin.html"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl 
+        text-gray-400 hover:bg-gray-800 hover:text-white transition">
+        <i class="fa-solid fa-utensils w-5 text-center"></i>
+        <span>eKantin</span>
+      </a>
+      <a href="rfid.html"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl 
+        text-gray-400 hover:bg-gray-800 hover:text-white transition">
+        <i class="fa-solid fa-id-card w-5 text-center"></i>
+        <span>RFID Member</span>
+      </a>
+      <a href="laporan.html"
+        class="flex items-center gap-3 px-4 py-3 rounded-xl 
+        text-gray-400 hover:bg-gray-800 hover:text-white transition">
+        <i class="fa-solid fa-chart-bar w-5 text-center"></i>
+        <span>Laporan</span>
+      </a>
+    </nav>
+
+    <!-- User Info -->
+    <div class="px-4 py-4 border-t border-gray-800">
+      <div class="flex items-center gap-3 px-4 py-3 rounded-xl 
+        bg-gray-800">
+        <div class="bg-purple-700 rounded-full w-9 h-9 flex 
+          items-center justify-center">
+          <i class="fa-solid fa-user text-white text-sm"></i>
+        </div>
+        <div class="flex-1 min-w-0">
+          <div id="sideNama" class="text-white text-sm font-semibold 
+            truncate"></div>
+          <div id="sideRole" class="text-gray-400 text-xs"></div>
+        </div>
+        <button onclick="logout()" title="Keluar"
+          class="text-gray-400 hover:text-red-400 transition">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="lg:ml-64 min-h-screen">
+
+    <!-- Topbar -->
+    <header class="bg-gray-900 border-b border-gray-800 px-4 lg:px-8 
+      py-4 flex items-center justify-between sticky top-0 z-30">
+      <div>
+        <h1 class="text-white font-bold text-xl">Dashboard</h1>
+        <p id="topRole" class="text-gray-400 text-sm"></p>
+      </div>
+      <div class="flex items-center gap-3">
+        <div class="text-right hidden sm:block">
+          <div id="topNama" class="text-white text-sm font-semibold"></div>
+          <div id="topWaktu" class="text-gray-400 text-xs"></div>
+        </div>
+        <button onclick="logout()"
+          class="lg:hidden bg-red-600 hover:bg-red-700 text-white 
+          text-sm px-3 py-2 rounded-lg">
+          <i class="fa-solid fa-right-from-bracket"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <main class="p-4 lg:p-8">
+
+      <!-- Status Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="bg-green-900 p-2 rounded-xl">
+              <i class="fa-solid fa-users text-green-400"></i>
+            </div>
+            <span class="text-green-400 text-xs bg-green-900 
+              px-2 py-1 rounded-full">Aktif</span>
+          </div>
+          <div id="statAnggota" class="text-white text-2xl font-bold">-</div>
+          <div class="text-gray-400 text-sm mt-1">Total Anggota</div>
+        </div>
+
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="bg-blue-900 p-2 rounded-xl">
+              <i class="fa-solid fa-hand-holding-dollar text-blue-400"></i>
+            </div>
+          </div>
+          <div id="statPinjaman" class="text-white text-2xl font-bold">-</div>
+          <div class="text-gray-400 text-sm mt-1">Pinjaman Aktif</div>
+        </div>
+
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="bg-yellow-900 p-2 rounded-xl">
+              <i class="fa-solid fa-receipt text-yellow-400"></i>
+            </div>
+          </div>
+          <div id="statTrx" class="text-white text-2xl font-bold">-</div>
+          <div class="text-gray-400 text-sm mt-1">Transaksi Hari Ini</div>
+        </div>
+
+        <div class="bg-gray-900 border border-gray-800 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="bg-purple-900 p-2 rounded-xl">
+              <i class="fa-solid fa-server text-purple-400"></i>
+            </div>
+            <span id="dotStatus" 
+              class="w-2 h-2 rounded-full bg-gray-500"></span>
+          </div>
+          <div id="statStatus" class="text-white text-lg font-bold">
+            Cek...</div>
+          <div class="text-gray-400 text-sm mt-1">Status Server</div>
+        </div>
+      </div>
+
+      <!-- Menu Grid -->
+      <h2 class="text-gray-400 text-sm font-semibold uppercase 
+        tracking-wider mb-4">Menu Utama</h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+
+        <a href="anggota.html"
+          class="bg-gray-900 border border-gray-800 hover:border-green-500 
+          rounded-2xl p-5 cursor-pointer transition group">
+          <div class="bg-green-900 group-hover:bg-green-700 w-12 h-12 
+            rounded-xl flex items-center justify-center mb-4 transition">
+            <i class="fa-solid fa-users text-green-400 text-xl"></i>
+          </div>
+          <div class="text-white font-semibold">Anggota</div>
+          <div class="text-gray-400 text-sm mt-1">Data & Simpanan</div>
+        </a>
+
+        <a href="pinjaman.html"
+          class="bg-gray-900 border border-gray-800 hover:border-blue-500 
+          rounded-2xl p-5 cursor-pointer transition group">
+          <div class="bg-blue-900 group-hover:bg-blue-700 w-12 h-12 
+            rounded-xl flex items-center justify-center mb-4 transition">
+            <i class="fa-solid fa-hand-holding-dollar text-blue-400 text-xl"></i>
+          </div>
+          <div class="text-white font-semibold">Pinjaman</div>
+          <div class="text-gray-400 text-sm mt-1">KSP / KSPPS</div>
+        </a>
+
+        <a href="toko.html"
+          class="bg-gray-900 border border-gray-800 hover:border-yellow-500 
+          rounded-2xl p-5 cursor-pointer transition group">
+          <div class="bg-yellow-900 group-hover:bg-yellow-700 w-12 h-12 
+            rounded-xl flex items-center justify-center mb-4 transition">
+            <i class="fa-solid fa-cart-shopping text-yellow-400 text-xl"></i>
+          </div>
+          <div class="text-white font-semibold">ePOS Toko</div>
+          <div class="text-gray-400 text-sm mt-1">Penjualan & Stok</div>
+        </a>
+
+        <a href="kantin.html"
+          class="bg-gray-900 border border-gray-800 hover:border-orange-500 
+          rounded-2xl p-5 cursor-pointer transition group">
+          <div class="bg-orange-900 group-hover:bg-orange-700 w-12 h-12 
+            rounded-xl flex items-center justify-center mb-4 transition">
+            <i class="fa-solid fa-utensils text-orange-400 text-xl"></i>
+          </div>
+          <div class="text-white font-semibold">eKantin</div>
+          <div class="text-gray-400 text-sm mt-1">Transaksi Kantin</div>
+        </a>
+
+        <a href="rfid.html"
+          class="bg-gray-900 border border-gray-800 hover:border-indigo-500 
+          rounded-2xl p-5 cursor-pointer transition group">
+          <div class="bg-indigo-900 group-hover:bg-indigo-700 w-12 h-12 
+            rounded-xl flex items-center justify-center mb-4 transition">
+            <i class="fa-solid fa-id-card text-indigo-400 text-xl"></i>
+          </div>
+          <div class="text-white font-semibold">RFID Member</div>
+          <div class="text-gray-400 text-sm mt-1">Kartu & Saldo</div>
+        </a>
+
+        <a href="laporan.html"
+          class="bg-gray-900 border border-gray-800 hover:border-purple-500 
+          rounded-2xl p-5 cursor-pointer transition group">
+          <div class="bg-purple-900 group-hover:bg-purple-700 w-12 h-12 
+            rounded-xl flex items-center justify-center mb-4 transition">
+            <i class="fa-solid fa-chart-bar text-purple-400 text-xl"></i>
+          </div>
+          <div class="text-white font-semibold">Laporan</div>
+          <div class="text-gray-400 text-sm mt-1">Rekap & Statistik</div>
+        </a>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-8 text-center text-gray-600 text-xs">
+        BORNEO-TECH © 2026 — Sistem Koperasi v1.0.0
+      </div>
+
+    </main>
   </div>
+
+  <!-- Bottom Nav (Mobile) -->
+  <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-gray-900 
+    border-t border-gray-800 px-4 py-2 flex justify-around z-40">
+    <a href="dashboard.html" 
+      class="flex flex-col items-center text-purple-400">
+      <i class="fa-solid fa-house text-lg"></i>
+      <span class="text-xs mt-1">Home</span>
+    </a>
+    <a href="anggota.html" 
+      class="flex flex-col items-center text-gray-400">
+      <i class="fa-solid fa-users text-lg"></i>
+      <span class="text-xs mt-1">Anggota</span>
+    </a>
+    <a href="toko.html" 
+      class="flex flex-col items-center text-gray-400">
+      <i class="fa-solid fa-cart-shopping text-lg"></i>
+      <span class="text-xs mt-1">Toko</span>
+    </a>
+    <a href="laporan.html" 
+      class="flex flex-col items-center text-gray-400">
+      <i class="fa-solid fa-chart-bar text-lg"></i>
+      <span class="text-xs mt-1">Laporan</span>
+    </a>
+  </nav>
 
   <script>
     const API = 'https://sistem-koperasi-production.up.railway.app';
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'index.html';
 
-    // Cek login
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) window.location.href = 'index.html';
+    // Isi info user
+    document.getElementById('sideNama').textContent = user.nama || '-';
+    document.getElementById('sideRole').textContent = 
+      (user.role || '').toUpperCase();
+    document.getElementById('topNama').textContent = user.nama || '-';
+    document.getElementById('topRole').textContent = 
+      'Role: ' + (user.role || '').toUpperCase();
 
-    // Tampilkan info user
-    document.getElementById('namaUser').textContent = user.nama;
-    document.getElementById('roleUser').textContent = 
-      `Role: ${user.role.toUpperCase()}`;
+    // Jam realtime
+    function updateWaktu() {
+      const now = new Date();
+      document.getElementById('topWaktu').textContent = 
+        now.toLocaleString('id-ID', { 
+          weekday: 'long', 
+          day: 'numeric', 
+          month: 'long',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+    }
+    updateWaktu();
+    setInterval(updateWaktu, 1000);
 
-    // Cek status backend
+    // Cek status server
     fetch(`${API}/`)
       .then(r => r.json())
-      .then(d => {
-        document.getElementById('statusBackend').textContent = '✅ Online';
-        document.getElementById('statusBackend').className = 
-          'text-green-400 text-sm';
+      .then(() => {
+        document.getElementById('statStatus').textContent = 'Online';
+        document.getElementById('statStatus').className = 
+          'text-green-400 text-lg font-bold';
+        document.getElementById('dotStatus').className = 
+          'w-2 h-2 rounded-full bg-green-400';
       })
       .catch(() => {
-        document.getElementById('statusBackend').textContent = '❌ Offline';
-        document.getElementById('statusBackend').className = 
-          'text-red-400 text-sm';
+        document.getElementById('statStatus').textContent = 'Offline';
+        document.getElementById('statStatus').className = 
+          'text-red-400 text-lg font-bold';
       });
 
-    function goto(page) {
-      window.location.href = page;
-    }
+    // Load statistik anggota
+    fetch(`${API}/api/anggota`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(r => r.json())
+      .then(d => {
+        document.getElementById('statAnggota').textContent = 
+          (d.data || []).length;
+      }).catch(() => {});
+
+    // Load transaksi hari ini
+    fetch(`${API}/api/transaksi?limit=100`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(r => r.json())
+      .then(d => {
+        const today = new Date().toDateString();
+        const todayTrx = (d.data || []).filter(t => 
+          new Date(t.tanggal).toDateString() === today);
+        document.getElementById('statTrx').textContent = todayTrx.length;
+        document.getElementById('statPinjaman').textContent = '-';
+      }).catch(() => {});
 
     function logout() {
       localStorage.clear();
