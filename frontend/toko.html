@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ePOS Toko - Sistem Koperasi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-gray-800 px-4 py-3 flex items-center gap-3">
+    <button onclick="history.back()" 
+      class="text-gray-400 hover:text-white text-xl">←</button>
+    <span class="text-white font-bold">🛒 ePOS Toko</span>
+    <div class="ml-auto bg-yellow-600 text-white text-sm 
+      px-3 py-1 rounded-full" id="totalKeranjang">
+      Keranjang: Rp 0
+    </div>
+  </nav>
+
+  <div class="p-4">
+
+    <!-- Search Produk -->
+    <input id="searchProduk" type="text" 
+      placeholder="🔍 Cari produk..."
+      oninput="filterProduk()"
+      class="w-full bg-gray-700 text-white rounded-xl px-4 py-3 
+      mb-4 focus:outline-none"/>
+
+    <!-- Grid Produk -->
+    <div id="gridProduk" 
+      class="grid grid-cols-2 gap-3 mb-4">
+      <div class="text-gray-400 text-center col-span-2 py-8">
+        ⏳ Memuat produk...</div>
+    </div>
+
+    <!-- Keranjang -->
+    <div id="sectionKeranjang" class="hidden">
+      <h3 class="text-white font-bold mb-3">🛒 Keranjang</h3>
+      <div id="listKeranjang" class="space-y-2 mb-3"></div>
+      
+      <div class="bg-gray-800 rounded-xl p-4 space-y-2">
+        <div class="flex justify-between">
+          <span class="text-gray-400">Subtotal</span>
+          <span id="subtotal" class="text-white"></span>
+        </div>
+        <select id="metodeBayar"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-2">
+          <option value="tunai">Tunai</option>
+          <option value="saldo_rfid">Saldo RFID</option>
+          <option value="transfer">Transfer</option>
+        </select>
+        <button onclick="prosesTransaksi()"
+          class="w-full bg-green-600 hover:bg-green-700 text-white 
+          font-bold py-3 rounded-xl">
+          ✅ Proses Transaksi
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal Sukses -->
+  <div id="modalSukses" class="hidden fixed inset-0 bg-black 
+    bg-opacity-70 flex items-center justify-center z-50">
+    <div class="bg-gray-800 rounded-2xl p-6 mx-4 text-center">
+      <div class="text-5xl mb-3">✅</div>
+      <h2 class="text-white font-bold text-xl mb-2">
+        Transaksi Berhasil!</h2>
+      <p id="noTransaksi" class="text-gray-400 text-sm mb-4"></p>
+      <button onclick="selesai()"
+        class="w-full bg-green-600 text-white font-semibold 
+        py-3 rounded-xl">Transaksi Baru</button>
+    </div>
+  </div>
+
+  <script>
+    const API = 'https://sistem-koperasi-production.up.railway.app';
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!token) window.location.href = 'index.html';
+
+    let produkList = [];
+    let keranjang = [];
+
+    async function loadProduk() {
+      try {
+        const res = await fetch(`${API}/api/transaksi?modul=toko&limit=1`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        // Load produk langsung dari Supabase via backend
+        // Sementara tampilkan produk dummy untuk demo
+        produkList = [
+          { id: 1, nama_produk: 'Beras 5kg', harga_jual: 65000, stok: 20, satuan: 'kg' },
+          { id: 2, nama_produk: 'Minyak Goreng 1L', harga_jual: 18000, stok: 15, satuan: 'botol' },
+          { id: 3, nama_produk: 'Gula Pasir 1kg', harga_jual: 14000, stok: 30, satuan: 'kg' },
+          { id: 4, nama_produk: 'Teh Celup', harga_jual: 8000, stok: 25, satuan: 'kotak' },
+          { id: 5, nama_produk: 'Kopi Sachet', harga_jual: 3000, stok: 50, satuan: 'pcs' },
+          { id: 6, nama_produk: 'Sabun Mandi', harga_jual: 5000, stok: 40, satuan: 'pcs' },
+        ];
+        renderProduk(produkList);
+      } catch {
+        document.getElementById('gridProduk').innerHTML = 
+          '<div class="text-red-400 col-span-2 text-center py-8">❌ Gagal memuat</div>';
+      }
+    }
+
+    function renderProduk(list) {
+      const el = document.getElementById('gridProduk');
+      if (!list.length) {
+        el.innerHTML = '<div class="text-gray-400 col-span-2 text-center">Tidak ada produk</div>';
+        return;
+      }
+      el.innerHTML = list.map(p => `
+        <div onclick="tambahKeranjang(${p.id})"
+          class="bg-gray-800 rounded-xl p-3 cursor-pointer 
+          hover:bg-gray-700 transition active:scale-95">
+          <div class="text-2xl mb-1">📦</div>
+          <div class="text-white text-sm font-semibold">${p.nama_produk}</div>
+          <div class="text-green-400 text-sm font-bold mt-1">
+            ${formatRp(p.harga_jual)}</div>
+          <div class="text-gray-400 text-xs">Stok: ${p.stok} ${p.satuan}</div>
+        </div>
+      `).join('');
+    }
+
+    function filterProduk() {
+      const q = document.getElementById('searchProduk').value.toLowerCase();
+      renderProduk(produkList.filter(p => 
+        p.nama_produk.toLowerCase().includes(q)));
+    }
+
+    function tambahKeranjang(id) {
+      const produk = produkList.find(p => p.id === id);
+      const existing = keranjang.find(k => k.id === id);
+      if (existing) {
+        existing.jumlah++;
+      } else {
+        keranjang.push({ ...produk, jumlah: 1 });
+      }
+      updateKeranjang();
+    }
+
+    function kurangiKeranjang(id) {
+      const idx = keranjang.findIndex(k => k.id === id);
+      if (idx === -1) return;
+      keranjang[idx].jumlah--;
+      if (keranjang[idx].jumlah === 0) keranjang.splice(idx, 1);
+      updateKeranjang();
+    }
+
+    function updateKeranjang() {
+      const total = keranjang.reduce((s, k) => 
+        s + (k.harga_jual * k.jumlah), 0);
+      
+      document.getElementById('totalKeranjang').textContent = 
+        `Keranjang: ${formatRp(total)}`;
+      document.getElementById('subtotal').textContent = formatRp(total);
+
+      const sec = document.getElementById('sectionKeranjang');
+      if (keranjang.length === 0) {
+        sec.classList.add('hidden');
+        return;
+      }
+      sec.classList.remove('hidden');
+
+      document.getElementById('listKeranjang').innerHTML = 
+        keranjang.map(k => `
+          <div class="bg-gray-800 rounded-xl p-3 flex 
+            justify-between items-center">
+            <div>
+              <div class="text-white text-sm">${k.nama_produk}</div>
+              <div class="text-green-400 text-sm">
+                ${formatRp(k.harga_jual)} x ${k.jumlah}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="kurangiKeranjang(${k.id})"
+                class="bg-red-700 text-white w-7 h-7 rounded-full 
+                text-sm">-</button>
+              <span class="text-white">${k.jumlah}</span>
+              <button onclick="tambahKeranjang(${k.id})"
+                class="bg-green-700 text-white w-7 h-7 rounded-full 
+                text-sm">+</button>
+            </div>
+          </div>
+        `).join('');
+    }
+
+    async function prosesTransaksi() {
+      if (!keranjang.length) return;
+
+      const total = keranjang.reduce((s, k) => 
+        s + (k.harga_jual * k.jumlah), 0);
+
+      const body = {
+        kasir_id: user.id,
+        items: keranjang.map(k => ({
+          produk_id: k.id,
+          jumlah: k.jumlah,
+          harga_satuan: k.harga_jual
+        })),
+        metode_bayar: document.getElementById('metodeBayar').value,
+        modul: 'toko'
+      };
+
+      try {
+        const res = await fetch(`${API}/api/transaksi`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('noTransaksi').textContent = 
+            `No: ${data.data.no_transaksi} | Total: ${formatRp(total)}`;
+          document.getElementById('modalSukses')
+            .classList.remove('hidden');
+        } else {
+          alert('Gagal: ' + data.message);
+        }
+      } catch {
+        alert('Gagal terhubung ke server!');
+      }
+    }
+
+    function selesai() {
+      keranjang = [];
+      updateKeranjang();
+      document.getElementById('modalSukses').classList.add('hidden');
+    }
+
+    function formatRp(n) {
+      return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    }
+
+    loadProduk();
+  </script>
+
+</body>
+</html>
