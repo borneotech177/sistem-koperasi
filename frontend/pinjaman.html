@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pinjaman - Sistem Koperasi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-gray-800 px-4 py-3 flex items-center gap-3">
+    <button onclick="history.back()" 
+      class="text-gray-400 hover:text-white text-xl">←</button>
+    <span class="text-white font-bold">💰 Pinjaman KSP</span>
+  </nav>
+
+  <div class="p-4">
+
+    <!-- Tabs -->
+    <div class="flex gap-2 mb-4">
+      <button onclick="switchTab('list')" id="tab-list"
+        class="flex-1 py-2 rounded-xl text-sm font-semibold
+        bg-blue-600 text-white">
+        Daftar Pinjaman</button>
+      <button onclick="switchTab('simulasi')" id="tab-simulasi"
+        class="flex-1 py-2 rounded-xl text-sm font-semibold
+        bg-gray-700 text-gray-300">
+        Simulasi Kredit</button>
+    </div>
+
+    <!-- Tab: List Pinjaman -->
+    <div id="content-list">
+      <button onclick="showFormPinjaman()"
+        class="w-full bg-blue-600 hover:bg-blue-700 text-white 
+        font-semibold py-3 rounded-xl mb-4">
+        + Ajukan Pinjaman Baru
+      </button>
+
+      <div id="listPinjaman" class="space-y-3">
+        <div class="text-gray-400 text-center py-8">⏳ Memuat data...</div>
+      </div>
+    </div>
+
+    <!-- Tab: Simulasi -->
+    <div id="content-simulasi" class="hidden">
+      <div class="bg-gray-800 rounded-xl p-4 space-y-3">
+        <h3 class="text-white font-semibold">🧮 Kalkulator Kredit</h3>
+        
+        <div>
+          <label class="text-gray-400 text-sm">Jumlah Pinjaman (Rp)</label>
+          <input id="sim_jumlah" type="number" placeholder="5000000"
+            oninput="hitung()"
+            class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+            focus:outline-none mt-1"/>
+        </div>
+        <div>
+          <label class="text-gray-400 text-sm">Tenor (Bulan)</label>
+          <input id="sim_tenor" type="number" placeholder="12"
+            oninput="hitung()"
+            class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+            focus:outline-none mt-1"/>
+        </div>
+        <div>
+          <label class="text-gray-400 text-sm">Bunga per Bulan (%)</label>
+          <input id="sim_bunga" type="number" placeholder="1.5"
+            oninput="hitung()" value="1.5"
+            class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+            focus:outline-none mt-1"/>
+        </div>
+
+        <!-- Hasil -->
+        <div id="hasilSimulasi" class="hidden bg-gray-700 rounded-xl p-4 
+          space-y-2 mt-2">
+          <div class="flex justify-between">
+            <span class="text-gray-400 text-sm">Angsuran/Bulan</span>
+            <span id="res_angsuran" class="text-white font-bold"></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400 text-sm">Total Bayar</span>
+            <span id="res_total" class="text-yellow-400"></span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-400 text-sm">Total Bunga</span>
+            <span id="res_bunga" class="text-red-400"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal Form Pinjaman -->
+  <div id="modalPinjaman" class="hidden fixed inset-0 bg-black 
+    bg-opacity-70 flex items-end z-50">
+    <div class="bg-gray-800 rounded-t-2xl w-full p-6 
+      max-h-screen overflow-y-auto">
+      
+      <h2 class="text-white font-bold text-lg mb-4">
+        Ajukan Pinjaman</h2>
+
+      <div class="space-y-3">
+        <select id="p_anggota"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3">
+          <option value="">Pilih Anggota</option>
+        </select>
+        <input id="p_jumlah" type="number" placeholder="Jumlah Pinjaman (Rp)"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none"/>
+        <input id="p_tenor" type="number" placeholder="Tenor (Bulan)"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none"/>
+        <input id="p_bunga" type="number" placeholder="Bunga (%)" value="1.5"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none"/>
+        <textarea id="p_tujuan" placeholder="Tujuan Pinjaman"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none" rows="2"></textarea>
+      </div>
+
+      <div class="flex gap-3 mt-4">
+        <button onclick="hidePinjaman()"
+          class="flex-1 bg-gray-600 text-white py-3 rounded-xl">
+          Batal</button>
+        <button onclick="ajukanPinjaman()"
+          class="flex-1 bg-blue-600 text-white font-semibold 
+          py-3 rounded-xl">Ajukan</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'https://sistem-koperasi-production.up.railway.app';
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'index.html';
+
+    function switchTab(tab) {
+      document.getElementById('content-list').classList.toggle('hidden', tab !== 'list');
+      document.getElementById('content-simulasi').classList.toggle('hidden', tab !== 'simulasi');
+      document.getElementById('tab-list').className = `flex-1 py-2 rounded-xl text-sm font-semibold ${tab === 'list' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`;
+      document.getElementById('tab-simulasi').className = `flex-1 py-2 rounded-xl text-sm font-semibold ${tab === 'simulasi' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300'}`;
+    }
+
+    function hitung() {
+      const jumlah = parseFloat(document.getElementById('sim_jumlah').value);
+      const tenor = parseInt(document.getElementById('sim_tenor').value);
+      const bunga = parseFloat(document.getElementById('sim_bunga').value);
+
+      if (!jumlah || !tenor || !bunga) return;
+
+      const bungaPerBulan = (jumlah * bunga / 100);
+      const angsuran = (jumlah / tenor) + bungaPerBulan;
+      const totalBayar = angsuran * tenor;
+      const totalBunga = totalBayar - jumlah;
+
+      document.getElementById('res_angsuran').textContent = formatRp(angsuran);
+      document.getElementById('res_total').textContent = formatRp(totalBayar);
+      document.getElementById('res_bunga').textContent = formatRp(totalBunga);
+      document.getElementById('hasilSimulasi').classList.remove('hidden');
+    }
+
+    function formatRp(n) {
+      return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    }
+
+    async function loadPinjaman() {
+      try {
+        const res = await fetch(`${API}/api/anggota`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        const anggota = data.data || [];
+
+        // Isi dropdown
+        const sel = document.getElementById('p_anggota');
+        anggota.forEach(a => {
+          sel.innerHTML += `<option value="${a.id}">${a.nama} - ${a.no_anggota}</option>`;
+        });
+
+        // Tampilkan list dummy (nanti connect ke API pinjaman)
+        document.getElementById('listPinjaman').innerHTML = 
+          '<div class="text-gray-400 text-center py-8">Belum ada data pinjaman</div>';
+
+      } catch {
+        document.getElementById('listPinjaman').innerHTML = 
+          '<div class="text-red-400 text-center py-8">❌ Gagal memuat</div>';
+      }
+    }
+
+    async function ajukanPinjaman() {
+      const anggota_id = document.getElementById('p_anggota').value;
+      const jumlah = document.getElementById('p_jumlah').value;
+      const tenor = document.getElementById('p_tenor').value;
+      const bunga = document.getElementById('p_bunga').value;
+      const tujuan = document.getElementById('p_tujuan').value;
+
+      if (!anggota_id || !jumlah || !tenor) {
+        alert('Anggota, jumlah, dan tenor wajib diisi!');
+        return;
+      }
+
+      alert('Fitur pengajuan pinjaman akan segera tersedia!');
+      hidePinjaman();
+    }
+
+    function showFormPinjaman() {
+      document.getElementById('modalPinjaman').classList.remove('hidden');
+    }
+    function hidePinjaman() {
+      document.getElementById('modalPinjaman').classList.add('hidden');
+    }
+
+    loadPinjaman();
+  </script>
+
+</body>
+</html>
