@@ -3,242 +3,530 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ePOS Toko - Sistem Koperasi</title>
+  <title>ePOS Toko - SisKop</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
 </head>
-<body class="bg-gray-900 min-h-screen">
+<body class="bg-gray-50 min-h-screen">
 
-  <!-- Navbar -->
-  <nav class="bg-gray-800 px-4 py-3 flex items-center gap-3">
-    <button onclick="history.back()" 
-      class="text-gray-400 hover:text-white text-xl">←</button>
-    <span class="text-white font-bold">🛒 ePOS Toko</span>
-    <div class="ml-auto bg-yellow-600 text-white text-sm 
-      px-3 py-1 rounded-full" id="totalKeranjang">
-      Keranjang: Rp 0
-    </div>
-  </nav>
+  <div id="sidebar"></div>
 
-  <div class="p-4">
+  <div class="lg:ml-64 min-h-screen">
 
-    <!-- Search Produk -->
-    <input id="searchProduk" type="text" 
-      placeholder="🔍 Cari produk..."
-      oninput="filterProduk()"
-      class="w-full bg-gray-700 text-white rounded-xl px-4 py-3 
-      mb-4 focus:outline-none"/>
+    <div id="navbar"></div>
 
-    <!-- Grid Produk -->
-    <div id="gridProduk" 
-      class="grid grid-cols-2 gap-3 mb-4">
-      <div class="text-gray-400 text-center col-span-2 py-8">
-        ⏳ Memuat produk...</div>
-    </div>
+    <main class="p-4 lg:p-8">
 
-    <!-- Keranjang -->
-    <div id="sectionKeranjang" class="hidden">
-      <h3 class="text-white font-bold mb-3">🛒 Keranjang</h3>
-      <div id="listKeranjang" class="space-y-2 mb-3"></div>
-      
-      <div class="bg-gray-800 rounded-xl p-4 space-y-2">
-        <div class="flex justify-between">
-          <span class="text-gray-400">Subtotal</span>
-          <span id="subtotal" class="text-white"></span>
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-gray-800 font-bold text-xl">ePOS Toko</h2>
+          <p class="text-gray-400 text-sm mt-0.5">
+            Transaksi penjualan toko</p>
         </div>
-        <select id="metodeBayar"
-          class="w-full bg-gray-700 text-white rounded-lg px-4 py-2">
-          <option value="tunai">Tunai</option>
-          <option value="saldo_rfid">Saldo RFID</option>
-          <option value="transfer">Transfer</option>
-        </select>
-        <button onclick="prosesTransaksi()"
-          class="w-full bg-green-600 hover:bg-green-700 text-white 
-          font-bold py-3 rounded-xl">
-          ✅ Proses Transaksi
-        </button>
+        <div class="flex gap-2">
+          <button onclick="showProdukManager()"
+            class="btn btn-secondary">
+            <i class="fa-solid fa-box"></i>
+            Produk
+          </button>
+        </div>
       </div>
-    </div>
 
+      <div class="lg:grid lg:grid-cols-3 lg:gap-6">
+
+        <!-- Kiri: Produk -->
+        <div class="lg:col-span-2">
+
+          <!-- Search -->
+          <div class="card p-3 mb-4">
+            <div class="relative">
+              <i class="fa-solid fa-search absolute left-3 
+                top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+              <input id="searchProduk" type="text"
+                placeholder="Cari produk..."
+                oninput="filterProduk()"
+                class="input pl-9"/>
+            </div>
+          </div>
+
+          <!-- Grid Produk -->
+          <div id="gridProduk"
+            class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+            <div class="col-span-2 md:col-span-3 card p-6 text-center">
+              <i class="fa-solid fa-spinner fa-spin 
+                text-gray-300 text-2xl mb-2"></i>
+              <p class="text-gray-400 text-sm">Memuat produk...</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Kanan: Keranjang -->
+        <div class="lg:col-span-1">
+          <div class="card p-4 lg:sticky lg:top-24">
+
+            <h3 class="font-bold text-gray-800 mb-3 flex 
+              items-center gap-2">
+              <i class="fa-solid fa-cart-shopping text-green-600"></i>
+              Keranjang
+              <span id="badgeKeranjang" 
+                class="hidden bg-green-600 text-white text-xs 
+                w-5 h-5 rounded-full flex items-center 
+                justify-center"></span>
+            </h3>
+
+            <div id="listKeranjang">
+              <div class="text-center py-6">
+                <i class="fa-solid fa-cart-shopping 
+                  text-gray-200 text-3xl mb-2"></i>
+                <p class="text-gray-400 text-sm">
+                  Keranjang kosong</p>
+              </div>
+            </div>
+
+            <div id="sectionTotal" class="hidden">
+              <div class="border-t border-gray-100 pt-3 mt-3 
+                space-y-2">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-500">Subtotal</span>
+                  <span id="subtotal" 
+                    class="font-semibold text-gray-800"></span>
+                </div>
+                <div>
+                  <label class="text-gray-500 text-sm 
+                    mb-1 block">Metode Bayar</label>
+                  <select id="metodeBayar" class="input">
+                    <option value="tunai">Tunai</option>
+                    <option value="saldo_rfid">Saldo RFID</option>
+                    <option value="transfer">Transfer</option>
+                  </select>
+                </div>
+                <button onclick="prosesTransaksi()"
+                  id="btnProses"
+                  class="btn btn-primary w-full justify-center">
+                  <i class="fa-solid fa-check"></i>
+                  Proses Transaksi
+                </button>
+                <button onclick="clearKeranjang()"
+                  class="btn btn-secondary w-full justify-center">
+                  <i class="fa-solid fa-trash"></i>
+                  Kosongkan
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </main>
   </div>
 
   <!-- Modal Sukses -->
-  <div id="modalSukses" class="hidden fixed inset-0 bg-black 
-    bg-opacity-70 flex items-center justify-center z-50">
-    <div class="bg-gray-800 rounded-2xl p-6 mx-4 text-center">
-      <div class="text-5xl mb-3">✅</div>
-      <h2 class="text-white font-bold text-xl mb-2">
-        Transaksi Berhasil!</h2>
-      <p id="noTransaksi" class="text-gray-400 text-sm mb-4"></p>
-      <button onclick="selesai()"
-        class="w-full bg-green-600 text-white font-semibold 
-        py-3 rounded-xl">Transaksi Baru</button>
+  <div id="modalSukses" class="hidden modal-overlay">
+    <div class="modal-box text-center">
+      <div class="bg-green-100 w-16 h-16 rounded-full flex 
+        items-center justify-center mx-auto mb-4">
+        <i class="fa-solid fa-check text-green-600 text-2xl"></i>
+      </div>
+      <h3 class="text-gray-800 font-bold text-xl mb-2">
+        Transaksi Berhasil!</h3>
+      <p id="infoTransaksi" 
+        class="text-gray-500 text-sm mb-2"></p>
+      <p id="infoTotal" 
+        class="text-green-600 font-bold text-xl mb-5"></p>
+      <div class="flex gap-3">
+        <button onclick="cetakStruk()"
+          class="btn btn-secondary flex-1">
+          <i class="fa-solid fa-print"></i>
+          Cetak Struk
+        </button>
+        <button onclick="selesai()"
+          class="btn btn-primary flex-1">
+          <i class="fa-solid fa-plus"></i>
+          Transaksi Baru
+        </button>
+      </div>
     </div>
   </div>
 
-  <script>
-    const API = 'https://sistem-koperasi-production.up.railway.app';
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!token) window.location.href = 'index.html';
+  <!-- Modal Produk Manager -->
+  <div id="modalProduk" class="hidden modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-gray-800 font-bold text-lg">
+          Manajemen Produk</h3>
+        <button onclick="hideProdukManager()"
+          class="text-gray-400 hover:text-gray-600 w-8 h-8 
+          flex items-center justify-center rounded-lg 
+          hover:bg-gray-100">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
 
-    let produkList = [];
-    let keranjang = [];
+      <button onclick="showFormProduk()"
+        class="btn btn-primary w-full justify-center mb-4">
+        <i class="fa-solid fa-plus"></i>
+        Tambah Produk Baru
+      </button>
+
+      <div id="listProdukManager" class="space-y-2 
+        max-h-64 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <!-- Modal Form Produk -->
+  <div id="modalFormProduk" class="hidden modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-gray-800 font-bold text-lg">
+          Tambah Produk</h3>
+        <button onclick="hideFormProduk()"
+          class="text-gray-400 hover:text-gray-600 w-8 h-8 
+          flex items-center justify-center rounded-lg 
+          hover:bg-gray-100">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label class="text-gray-600 text-sm font-medium 
+            mb-1 block">Kode Produk *</label>
+          <input id="fp_kode" type="text"
+            placeholder="PRD-001" class="input"/>
+        </div>
+        <div>
+          <label class="text-gray-600 text-sm font-medium 
+            mb-1 block">Nama Produk *</label>
+          <input id="fp_nama" type="text"
+            placeholder="Nama produk" class="input"/>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-gray-600 text-sm font-medium 
+              mb-1 block">Harga Beli</label>
+            <input id="fp_harga_beli" type="number"
+              placeholder="0" class="input"/>
+          </div>
+          <div>
+            <label class="text-gray-600 text-sm font-medium 
+              mb-1 block">Harga Jual *</label>
+            <input id="fp_harga_jual" type="number"
+              placeholder="0" class="input"/>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-gray-600 text-sm font-medium 
+              mb-1 block">Stok</label>
+            <input id="fp_stok" type="number"
+              placeholder="0" class="input"/>
+          </div>
+          <div>
+            <label class="text-gray-600 text-sm font-medium 
+              mb-1 block">Satuan</label>
+            <input id="fp_satuan" type="text"
+              placeholder="pcs" class="input"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-4">
+        <button onclick="hideFormProduk()"
+          class="btn btn-secondary flex-1">Batal</button>
+        <button onclick="simpanProduk()" id="btnSimpanProduk"
+          class="btn btn-primary flex-1">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../components/sidebar.js"></script>
+  <script src="../components/navbar.js"></script>
+
+  <script>
+    Auth.check()
+
+    document.getElementById('sidebar').innerHTML =
+      renderSidebar('toko')
+    document.getElementById('navbar').innerHTML =
+      renderNavbar('ePOS Toko', 'toko')
+    startClock()
+
+    const user = Auth.getUser()
+    let produkList = []
+    let keranjang = []
+    let lastTransaksi = null
 
     async function loadProduk() {
       try {
-        const res = await fetch(`${API}/api/transaksi?modul=toko&limit=1`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        // Load produk langsung dari Supabase via backend
-        // Sementara tampilkan produk dummy untuk demo
+        const data = await Helper.fetch(
+          '/api/transaksi?modul=toko&limit=1')
+        // Dummy produk - nanti dari API produk
         produkList = [
-          { id: 1, nama_produk: 'Beras 5kg', harga_jual: 65000, stok: 20, satuan: 'kg' },
-          { id: 2, nama_produk: 'Minyak Goreng 1L', harga_jual: 18000, stok: 15, satuan: 'botol' },
-          { id: 3, nama_produk: 'Gula Pasir 1kg', harga_jual: 14000, stok: 30, satuan: 'kg' },
-          { id: 4, nama_produk: 'Teh Celup', harga_jual: 8000, stok: 25, satuan: 'kotak' },
-          { id: 5, nama_produk: 'Kopi Sachet', harga_jual: 3000, stok: 50, satuan: 'pcs' },
-          { id: 6, nama_produk: 'Sabun Mandi', harga_jual: 5000, stok: 40, satuan: 'pcs' },
-        ];
-        renderProduk(produkList);
+          { id:1, kode_produk:'PRD-001', nama_produk:'Beras 5kg', harga_jual:65000, stok:20, satuan:'kg' },
+          { id:2, kode_produk:'PRD-002', nama_produk:'Minyak Goreng 1L', harga_jual:18000, stok:15, satuan:'botol' },
+          { id:3, kode_produk:'PRD-003', nama_produk:'Gula Pasir 1kg', harga_jual:14000, stok:30, satuan:'kg' },
+          { id:4, kode_produk:'PRD-004', nama_produk:'Teh Celup', harga_jual:8000, stok:25, satuan:'kotak' },
+          { id:5, kode_produk:'PRD-005', nama_produk:'Kopi Sachet', harga_jual:3000, stok:50, satuan:'pcs' },
+          { id:6, kode_produk:'PRD-006', nama_produk:'Sabun Mandi', harga_jual:5000, stok:40, satuan:'pcs' },
+        ]
+        renderProduk(produkList)
       } catch {
-        document.getElementById('gridProduk').innerHTML = 
-          '<div class="text-red-400 col-span-2 text-center py-8">❌ Gagal memuat</div>';
+        Helper.toast('Gagal memuat produk!', 'error')
       }
     }
 
     function renderProduk(list) {
-      const el = document.getElementById('gridProduk');
+      const el = document.getElementById('gridProduk')
       if (!list.length) {
-        el.innerHTML = '<div class="text-gray-400 col-span-2 text-center">Tidak ada produk</div>';
-        return;
+        el.innerHTML = `
+          <div class="col-span-2 md:col-span-3 card p-6 
+            text-center">
+            <i class="fa-solid fa-box-open text-gray-300 
+              text-2xl mb-2"></i>
+            <p class="text-gray-400 text-sm">
+              Tidak ada produk</p>
+          </div>`
+        return
       }
       el.innerHTML = list.map(p => `
         <div onclick="tambahKeranjang(${p.id})"
-          class="bg-gray-800 rounded-xl p-3 cursor-pointer 
-          hover:bg-gray-700 transition active:scale-95">
-          <div class="text-2xl mb-1">📦</div>
-          <div class="text-white text-sm font-semibold">${p.nama_produk}</div>
-          <div class="text-green-400 text-sm font-bold mt-1">
-            ${formatRp(p.harga_jual)}</div>
-          <div class="text-gray-400 text-xs">Stok: ${p.stok} ${p.satuan}</div>
+          class="card p-3 cursor-pointer active:scale-95 
+          transition group">
+          <div class="bg-yellow-100 group-hover:bg-yellow-200 
+            w-10 h-10 rounded-xl flex items-center 
+            justify-center mb-2 transition">
+            <i class="fa-solid fa-box text-yellow-600"></i>
+          </div>
+          <div class="text-gray-800 text-sm font-semibold 
+            leading-tight">${p.nama_produk}</div>
+          <div class="text-green-600 font-bold text-sm mt-1">
+            ${Helper.rupiah(p.harga_jual)}</div>
+          <div class="text-gray-400 text-xs mt-0.5">
+            Stok: ${p.stok} ${p.satuan}</div>
         </div>
-      `).join('');
+      `).join('')
     }
 
     function filterProduk() {
-      const q = document.getElementById('searchProduk').value.toLowerCase();
-      renderProduk(produkList.filter(p => 
-        p.nama_produk.toLowerCase().includes(q)));
+      const q = document.getElementById('searchProduk')
+        .value.toLowerCase()
+      renderProduk(produkList.filter(p =>
+        p.nama_produk.toLowerCase().includes(q) ||
+        p.kode_produk.toLowerCase().includes(q)))
     }
 
     function tambahKeranjang(id) {
-      const produk = produkList.find(p => p.id === id);
-      const existing = keranjang.find(k => k.id === id);
+      const p = produkList.find(x => x.id === id)
+      const existing = keranjang.find(k => k.id === id)
       if (existing) {
-        existing.jumlah++;
+        if (existing.jumlah >= p.stok) {
+          Helper.toast('Stok tidak cukup!', 'error')
+          return
+        }
+        existing.jumlah++
       } else {
-        keranjang.push({ ...produk, jumlah: 1 });
+        keranjang.push({ ...p, jumlah: 1 })
       }
-      updateKeranjang();
+      updateKeranjang()
+      Helper.toast(`${p.nama_produk} ditambahkan`, 'success')
     }
 
-    function kurangiKeranjang(id) {
-      const idx = keranjang.findIndex(k => k.id === id);
-      if (idx === -1) return;
-      keranjang[idx].jumlah--;
-      if (keranjang[idx].jumlah === 0) keranjang.splice(idx, 1);
-      updateKeranjang();
+    function kurangi(id) {
+      const idx = keranjang.findIndex(k => k.id === id)
+      if (idx === -1) return
+      keranjang[idx].jumlah--
+      if (keranjang[idx].jumlah === 0) keranjang.splice(idx, 1)
+      updateKeranjang()
+    }
+
+    function tambah(id) {
+      tambahKeranjang(id)
+    }
+
+    function hapusItem(id) {
+      keranjang = keranjang.filter(k => k.id !== id)
+      updateKeranjang()
+    }
+
+    function clearKeranjang() {
+      keranjang = []
+      updateKeranjang()
     }
 
     function updateKeranjang() {
-      const total = keranjang.reduce((s, k) => 
-        s + (k.harga_jual * k.jumlah), 0);
-      
-      document.getElementById('totalKeranjang').textContent = 
-        `Keranjang: ${formatRp(total)}`;
-      document.getElementById('subtotal').textContent = formatRp(total);
+      const total = keranjang.reduce((s, k) =>
+        s + (k.harga_jual * k.jumlah), 0)
+      const count = keranjang.reduce((s, k) => s + k.jumlah, 0)
 
-      const sec = document.getElementById('sectionKeranjang');
-      if (keranjang.length === 0) {
-        sec.classList.add('hidden');
-        return;
+      const badge = document.getElementById('badgeKeranjang')
+      if (count > 0) {
+        badge.textContent = count
+        badge.classList.remove('hidden')
+      } else {
+        badge.classList.add('hidden')
       }
-      sec.classList.remove('hidden');
 
-      document.getElementById('listKeranjang').innerHTML = 
-        keranjang.map(k => `
-          <div class="bg-gray-800 rounded-xl p-3 flex 
-            justify-between items-center">
-            <div>
-              <div class="text-white text-sm">${k.nama_produk}</div>
-              <div class="text-green-400 text-sm">
-                ${formatRp(k.harga_jual)} x ${k.jumlah}</div>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="kurangiKeranjang(${k.id})"
-                class="bg-red-700 text-white w-7 h-7 rounded-full 
-                text-sm">-</button>
-              <span class="text-white">${k.jumlah}</span>
-              <button onclick="tambahKeranjang(${k.id})"
-                class="bg-green-700 text-white w-7 h-7 rounded-full 
-                text-sm">+</button>
-            </div>
+      document.getElementById('subtotal').textContent =
+        Helper.rupiah(total)
+
+      const sec = document.getElementById('sectionTotal')
+      const list = document.getElementById('listKeranjang')
+
+      if (!keranjang.length) {
+        sec.classList.add('hidden')
+        list.innerHTML = `
+          <div class="text-center py-6">
+            <i class="fa-solid fa-cart-shopping 
+              text-gray-200 text-3xl mb-2"></i>
+            <p class="text-gray-400 text-sm">Keranjang kosong</p>
+          </div>`
+        return
+      }
+
+      sec.classList.remove('hidden')
+      list.innerHTML = keranjang.map(k => `
+        <div class="flex items-center gap-2 py-2 
+          border-b border-gray-50">
+          <div class="flex-1 min-w-0">
+            <div class="text-gray-800 text-sm font-medium 
+              truncate">${k.nama_produk}</div>
+            <div class="text-green-600 text-xs">
+              ${Helper.rupiah(k.harga_jual)}</div>
           </div>
-        `).join('');
+          <div class="flex items-center gap-1">
+            <button onclick="kurangi(${k.id})"
+              class="w-6 h-6 bg-gray-100 hover:bg-red-100 
+              text-gray-600 hover:text-red-600 rounded-lg 
+              text-xs flex items-center justify-center">
+              <i class="fa-solid fa-minus"></i>
+            </button>
+            <span class="text-gray-800 text-sm font-semibold 
+              w-6 text-center">${k.jumlah}</span>
+            <button onclick="tambah(${k.id})"
+              class="w-6 h-6 bg-gray-100 hover:bg-green-100 
+              text-gray-600 hover:text-green-600 rounded-lg 
+              text-xs flex items-center justify-center">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <button onclick="hapusItem(${k.id})"
+              class="w-6 h-6 hover:bg-red-100 text-gray-300 
+              hover:text-red-500 rounded-lg text-xs flex 
+              items-center justify-center ml-1">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+      `).join('')
     }
 
     async function prosesTransaksi() {
-      if (!keranjang.length) return;
+      if (!keranjang.length) return
+      const btn = document.getElementById('btnProses')
+      const total = keranjang.reduce((s, k) =>
+        s + (k.harga_jual * k.jumlah), 0)
 
-      const total = keranjang.reduce((s, k) => 
-        s + (k.harga_jual * k.jumlah), 0);
-
-      const body = {
-        kasir_id: user.id,
-        items: keranjang.map(k => ({
-          produk_id: k.id,
-          jumlah: k.jumlah,
-          harga_satuan: k.harga_jual
-        })),
-        metode_bayar: document.getElementById('metodeBayar').value,
-        modul: 'toko'
-      };
+      btn.innerHTML = 
+        '<i class="fa-solid fa-spinner fa-spin"></i> Proses...'
+      btn.disabled = true
 
       try {
-        const res = await fetch(`${API}/api/transaksi`, {
+        const data = await Helper.fetch('/api/transaksi', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
+          body: JSON.stringify({
+            kasir_id: user.id,
+            items: keranjang.map(k => ({
+              produk_id: k.id,
+              jumlah: k.jumlah,
+              harga_satuan: k.harga_jual
+            })),
+            metode_bayar: document.getElementById('metodeBayar').value,
+            modul: 'toko'
+          })
+        })
+
         if (data.success) {
-          document.getElementById('noTransaksi').textContent = 
-            `No: ${data.data.no_transaksi} | Total: ${formatRp(total)}`;
+          lastTransaksi = data.data
+          document.getElementById('infoTransaksi').textContent =
+            `No: ${data.data.no_transaksi}`
+          document.getElementById('infoTotal').textContent =
+            Helper.rupiah(total)
           document.getElementById('modalSukses')
-            .classList.remove('hidden');
+            .classList.remove('hidden')
         } else {
-          alert('Gagal: ' + data.message);
+          Helper.toast(data.message, 'error')
         }
       } catch {
-        alert('Gagal terhubung ke server!');
+        Helper.toast('Gagal terhubung ke server!', 'error')
       }
+
+      btn.innerHTML =
+        '<i class="fa-solid fa-check"></i> Proses Transaksi'
+      btn.disabled = false
     }
 
     function selesai() {
-      keranjang = [];
-      updateKeranjang();
-      document.getElementById('modalSukses').classList.add('hidden');
+      keranjang = []
+      updateKeranjang()
+      document.getElementById('modalSukses').classList.add('hidden')
     }
 
-    function formatRp(n) {
-      return 'Rp ' + Math.round(n).toLocaleString('id-ID');
+    function cetakStruk() {
+      Helper.toast('Fitur cetak struk segera tersedia!', 'warning')
     }
 
-    loadProduk();
+    function showProdukManager() {
+      const list = document.getElementById('listProdukManager')
+      list.innerHTML = produkList.map(p => `
+        <div class="flex items-center justify-between p-3 
+          bg-gray-50 rounded-xl">
+          <div>
+            <div class="text-gray-800 text-sm font-medium">
+              ${p.nama_produk}</div>
+            <div class="text-gray-400 text-xs">
+              ${Helper.rupiah(p.harga_jual)} • 
+              Stok: ${p.stok}</div>
+          </div>
+          <button class="text-green-600 hover:text-green-700">
+            <i class="fa-solid fa-pen text-sm"></i>
+          </button>
+        </div>
+      `).join('')
+      document.getElementById('modalProduk')
+        .classList.remove('hidden')
+    }
+
+    function hideProdukManager() {
+      document.getElementById('modalProduk').classList.add('hidden')
+    }
+
+    function showFormProduk() {
+      hideProdukManager()
+      document.getElementById('modalFormProduk')
+        .classList.remove('hidden')
+    }
+
+    function hideFormProduk() {
+      document.getElementById('modalFormProduk')
+        .classList.add('hidden')
+    }
+
+    async function simpanProduk() {
+      Helper.toast('Fitur segera tersedia!', 'warning')
+      hideFormProduk()
+    }
+
+    loadProduk()
   </script>
 
 </body>
