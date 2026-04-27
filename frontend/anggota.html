@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Anggota - Sistem Koperasi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-gray-800 px-4 py-3 flex items-center gap-3">
+    <button onclick="history.back()" 
+      class="text-gray-400 hover:text-white text-xl">←</button>
+    <span class="text-white font-bold">👥 Data Anggota</span>
+  </nav>
+
+  <!-- Main -->
+  <div class="p-4">
+
+    <!-- Tombol Tambah -->
+    <button onclick="showForm()"
+      class="w-full bg-green-600 hover:bg-green-700 text-white 
+      font-semibold py-3 rounded-xl mb-4">
+      + Tambah Anggota Baru
+    </button>
+
+    <!-- Search -->
+    <input id="search" type="text" placeholder="🔍 Cari nama anggota..."
+      oninput="filterAnggota()"
+      class="w-full bg-gray-700 text-white rounded-xl px-4 py-3 
+      mb-4 focus:outline-none focus:ring-2 focus:ring-green-500"/>
+
+    <!-- List Anggota -->
+    <div id="listAnggota" class="space-y-3">
+      <div class="text-gray-400 text-center py-8">⏳ Memuat data...</div>
+    </div>
+
+  </div>
+
+  <!-- Modal Form Tambah -->
+  <div id="modalForm" class="hidden fixed inset-0 bg-black bg-opacity-70 
+    flex items-end z-50">
+    <div class="bg-gray-800 rounded-t-2xl w-full p-6 max-h-screen 
+      overflow-y-auto">
+      
+      <h2 class="text-white font-bold text-lg mb-4">Tambah Anggota</h2>
+
+      <div class="space-y-3">
+        <input id="f_no" type="text" placeholder="No. Anggota (contoh: ANG-001)"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none"/>
+        <input id="f_nik" type="text" placeholder="NIK (16 digit)"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none"/>
+        <input id="f_nama" type="text" placeholder="Nama Lengkap"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none"/>
+        <input id="f_hp" type="text" placeholder="No. HP"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none"/>
+        <select id="f_jk"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none">
+          <option value="">Jenis Kelamin</option>
+          <option value="L">Laki-laki</option>
+          <option value="P">Perempuan</option>
+        </select>
+        <input id="f_pekerjaan" type="text" placeholder="Pekerjaan"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none"/>
+        <textarea id="f_alamat" placeholder="Alamat"
+          class="w-full bg-gray-700 text-white rounded-lg px-4 py-3 
+          focus:outline-none" rows="2"></textarea>
+      </div>
+
+      <div id="alertForm" class="hidden mt-3 p-3 rounded-lg text-sm"></div>
+
+      <div class="flex gap-3 mt-4">
+        <button onclick="hideForm()"
+          class="flex-1 bg-gray-600 hover:bg-gray-500 text-white 
+          py-3 rounded-xl">Batal</button>
+        <button onclick="simpanAnggota()"
+          class="flex-1 bg-green-600 hover:bg-green-700 text-white 
+          font-semibold py-3 rounded-xl">Simpan</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal Detail -->
+  <div id="modalDetail" class="hidden fixed inset-0 bg-black 
+    bg-opacity-70 flex items-end z-50">
+    <div class="bg-gray-800 rounded-t-2xl w-full p-6">
+      <h2 class="text-white font-bold text-lg mb-4">Detail Anggota</h2>
+      <div id="detailContent" class="space-y-2"></div>
+      <button onclick="hideDetail()"
+        class="w-full bg-gray-600 text-white py-3 rounded-xl mt-4">
+        Tutup</button>
+    </div>
+  </div>
+
+  <script>
+    const API = 'https://sistem-koperasi-production.up.railway.app';
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'index.html';
+
+    let dataAnggota = [];
+
+    // Load data
+    async function loadAnggota() {
+      try {
+        const res = await fetch(`${API}/api/anggota`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        dataAnggota = data.data || [];
+        renderAnggota(dataAnggota);
+      } catch {
+        document.getElementById('listAnggota').innerHTML = 
+          '<div class="text-red-400 text-center py-8">❌ Gagal memuat data</div>';
+      }
+    }
+
+    function renderAnggota(list) {
+      const el = document.getElementById('listAnggota');
+      if (!list.length) {
+        el.innerHTML = '<div class="text-gray-400 text-center py-8">Belum ada data anggota</div>';
+        return;
+      }
+      el.innerHTML = list.map(a => `
+        <div onclick="showDetail(${a.id})" 
+          class="bg-gray-800 rounded-xl p-4 cursor-pointer 
+          hover:bg-gray-700 transition">
+          <div class="flex justify-between items-start">
+            <div>
+              <div class="text-white font-semibold">${a.nama}</div>
+              <div class="text-gray-400 text-sm">${a.no_anggota}</div>
+              <div class="text-gray-400 text-sm">${a.no_hp || '-'}</div>
+            </div>
+            <span class="px-2 py-1 rounded-full text-xs ${
+              a.status === 'aktif' 
+                ? 'bg-green-900 text-green-300' 
+                : 'bg-red-900 text-red-300'
+            }">${a.status}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterAnggota() {
+      const q = document.getElementById('search').value.toLowerCase();
+      const filtered = dataAnggota.filter(a => 
+        a.nama.toLowerCase().includes(q) || 
+        a.no_anggota.toLowerCase().includes(q)
+      );
+      renderAnggota(filtered);
+    }
+
+    function showDetail(id) {
+      const a = dataAnggota.find(x => x.id === id);
+      if (!a) return;
+      document.getElementById('detailContent').innerHTML = `
+        <div class="flex justify-between">
+          <span class="text-gray-400">No. Anggota</span>
+          <span class="text-white">${a.no_anggota}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Nama</span>
+          <span class="text-white">${a.nama}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">NIK</span>
+          <span class="text-white">${a.nik}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">No. HP</span>
+          <span class="text-white">${a.no_hp || '-'}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Pekerjaan</span>
+          <span class="text-white">${a.pekerjaan || '-'}</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-400">Status</span>
+          <span class="text-green-400">${a.status}</span>
+        </div>
+      `;
+      document.getElementById('modalDetail').classList.remove('hidden');
+    }
+
+    async function simpanAnggota() {
+      const body = {
+        no_anggota: document.getElementById('f_no').value,
+        nik: document.getElementById('f_nik').value,
+        nama: document.getElementById('f_nama').value,
+        no_hp: document.getElementById('f_hp').value,
+        jenis_kelamin: document.getElementById('f_jk').value,
+        pekerjaan: document.getElementById('f_pekerjaan').value,
+        alamat: document.getElementById('f_alamat').value,
+        tanggal_daftar: new Date().toISOString().split('T')[0]
+      };
+
+      if (!body.no_anggota || !body.nik || !body.nama) {
+        showAlertForm('No. Anggota, NIK, dan Nama wajib diisi!', 'error');
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/api/anggota`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+        if (data.success) {
+          hideForm();
+          loadAnggota();
+        } else {
+          showAlertForm(data.message, 'error');
+        }
+      } catch {
+        showAlertForm('Gagal menyimpan data!', 'error');
+      }
+    }
+
+    function showAlertForm(msg, type) {
+      const el = document.getElementById('alertForm');
+      el.textContent = msg;
+      el.className = `mt-3 p-3 rounded-lg text-sm ${
+        type === 'error' 
+          ? 'bg-red-900 text-red-300' 
+          : 'bg-green-900 text-green-300'
+      }`;
+      el.classList.remove('hidden');
+    }
+
+    function showForm() { 
+      document.getElementById('modalForm').classList.remove('hidden'); 
+    }
+    function hideForm() { 
+      document.getElementById('modalForm').classList.add('hidden'); 
+    }
+    function hideDetail() { 
+      document.getElementById('modalDetail').classList.add('hidden'); 
+    }
+
+    loadAnggota();
+  </script>
+
+</body>
+</html>
