@@ -255,6 +255,7 @@
 
   <script>
     Auth.check()
+    Auth.checkRole('toko')
 
     document.getElementById('sidebar').innerHTML =
       renderSidebar('toko')
