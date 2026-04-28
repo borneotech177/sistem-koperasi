@@ -14,6 +14,7 @@ function renderSidebar(activePage = 'dashboard') {
         { id: 'anggota', label: 'Anggota', icon: 'fa-users', href: 'anggota.html' },
         { id: 'pinjaman', label: 'Pinjaman KSP', icon: 'fa-hand-holding-dollar', href: 'pinjaman.html' },
         { id: 'produk', label: 'Manajemen Produk', icon: 'fa-box', href: 'produk.html' },
+        { id: 'users', label: 'Manajemen User', icon: 'fa-user-gear', href: 'users.html' },
       ]
     },
     {
