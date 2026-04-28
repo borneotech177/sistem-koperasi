@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anggota - SisKop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <div id="sidebar"></div>
+
+  <div class="lg:ml-64 min-h-screen">
+
+    <div id="navbar"></div>
+
+    <main class="p-4 lg:p-8">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-gray-800 font-bold text-xl">Data Anggota</h2>
+          <p class="text-gray-400 text-sm mt-0.5">
+            Kelola data anggota koperasi</p>
+        </div>
+        <button onclick="showForm()"
+          class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i>
+          Tambah
+        </button>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="card p-4 mb-4">
+        <div class="flex gap-3">
+          <div class="relative flex-1">
+            <i class="fa-solid fa-search absolute left-3 
+              top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <input id="search" type="text"
+              placeholder="Cari nama atau no. anggota..."
+              oninput="filterAnggota()"
+              class="input pl-9"/>
+          </div>
+          <select id="filterStatus" onchange="filterAnggota()"
+            class="input w-auto">
+            <option value="">Semua</option>
+            <option value="aktif">Aktif</option>
+            <option value="nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Stat -->
+      <div class="grid grid-cols-3 gap-3 mb-4">
+        <div class="card p-3 text-center">
+          <div id="countTotal" 
+            class="text-xl font-bold text-gray-800">-</div>
+          <div class="text-gray-400 text-xs mt-0.5">Total</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div id="countAktif" 
+            class="text-xl font-bold text-green-600">-</div>
+          <div class="text-gray-400 text-xs mt-0.5">Aktif</div>
+        </div>
+        <div class="card p-3 text-center">
+          <div id="countNonaktif" 
+            class="text-xl font-bold text-red-500">-</div>
+          <div class="text-gray-400 text-xs mt-0.5">Nonaktif</div>
+        </div>
+      </div>
+
+      <!-- Tabel Desktop -->
+      <div class="card hidden lg:block overflow-hidden">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>No. Anggota</th>
+              <th>Nama</th>
+              <th>NIK</th>
+              <th>No. HP</th>
+              <th>Pekerjaan</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="7" class="text-center py-8">
+                <div class="flex flex-col items-center gap-2">
+                  <i class="fa-solid fa-spinner fa-spin 
+                    text-gray-300 text-2xl"></i>
+                  <span class="text-gray-400 text-sm">
+                    Memuat data...</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- List Mobile -->
+      <div id="listMobile" class="lg:hidden space-y-3">
+        <div class="card p-4 text-center">
+          <i class="fa-solid fa-spinner fa-spin text-gray-300 text-xl"></i>
+          <p class="text-gray-400 text-sm mt-2">Memuat data...</p>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal Form -->
+  <div id="modalForm" class="hidden modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-5">
+        <h3 id="formTitle" class="text-gray-800 font-bold text-lg">
+          Tambah Anggota</h3>
+        <button onclick="hideForm()"
+          class="text-gray-400 hover:text-gray-600 w-8 h-8 
+          flex items-center justify-center rounded-lg 
+          hover:bg-gray-100">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-gray-600 text-sm font-medium 
+              mb-1 block">No. Anggota *</label>
+            <input id="f_no" type="text" 
+              placeholder="ANG-001" class="input"/>
+          </div>
+          <div>
+            <label class="text-gray-600 text-sm font-medium 
+              mb-1 block">NIK *</label>
+            <input id="f_nik" type="text" 
+              placeholder="16 digit" class="input"/>
+          </div>
+        </div>
+        <div>
+          <label class="text-gray-600 text-sm font-medium 
+            mb-1 block">Nama Lengkap *</label>
+          <input id="f_nama" type="text" 
+            placeholder="Nama lengkap" class="input"/>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-gray-600 text-sm font-medium 
+              mb-1 block">No. HP</label>
+            <input id="f_hp" type="text" 
+              placeholder="08xx" class="input"/>
+          </div>
+          <div>
+            <label class="text-gray-600 text-sm font-medium 
+              mb-1 block">Jenis Kelamin</label>
+            <select id="f_jk" class="input">
+              <option value="">Pilih</option>
+              <option value="L">Laki-laki</option>
+              <option value="P">Perempuan</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="text-gray-600 text-sm font-medium 
+            mb-1 block">Pekerjaan</label>
+          <input id="f_pekerjaan" type="text" 
+            placeholder="Pekerjaan" class="input"/>
+        </div>
+        <div>
+          <label class="text-gray-600 text-sm font-medium 
+            mb-1 block">Alamat</label>
+          <textarea id="f_alamat" placeholder="Alamat lengkap"
+            class="input" rows="2"></textarea>
+        </div>
+      </div>
+
+      <div id="alertForm" class="hidden mt-3 p-3 rounded-xl 
+        text-sm flex items-center gap-2"></div>
+
+      <div class="flex gap-3 mt-5">
+        <button onclick="hideForm()"
+          class="btn btn-secondary flex-1">Batal</button>
+        <button onclick="simpanAnggota()" id="btnSimpan"
+          class="btn btn-primary flex-1">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detail -->
+  <div id="modalDetail" class="hidden modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-gray-800 font-bold text-lg">
+          Detail Anggota</h3>
+        <button onclick="hideDetail()"
+          class="text-gray-400 hover:text-gray-600 w-8 h-8 
+          flex items-center justify-center rounded-lg 
+          hover:bg-gray-100">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div id="detailContent" class="space-y-3"></div>
+      <div class="flex gap-3 mt-5">
+        <button onclick="hideDetail()"
+          class="btn btn-secondary flex-1">Tutup</button>
+        <button id="btnEdit" onclick="editAnggota()"
+          class="btn btn-primary flex-1">
+          <i class="fa-solid fa-pen"></i>
+          Edit
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../components/sidebar.js"></script>
+  <script src="../components/navbar.js"></script>
+
+  <script>
+    Auth.check()
+
+    document.getElementById('sidebar').innerHTML = 
+      renderSidebar('anggota')
+    document.getElementById('navbar').innerHTML = 
+      renderNavbar('Data Anggota', 'anggota')
+    startClock()
+
+    let dataAnggota = []
+    let selectedId = null
+
+    async function loadAnggota() {
+      try {
+        const data = await Helper.fetch('/api/anggota')
+        dataAnggota = data.data || []
+        updateStats()
+        renderTable(dataAnggota)
+        renderMobile(dataAnggota)
+      } catch {
+        Helper.toast('Gagal memuat data!', 'error')
+      }
+    }
+
+    function updateStats() {
+      const aktif = dataAnggota.filter(a => a.status === 'aktif').length
+      document.getElementById('countTotal').textContent = dataAnggota.length
+      document.getElementById('countAktif').textContent = aktif
+      document.getElementById('countNonaktif').textContent = 
+        dataAnggota.length - aktif
+    }
+
+    function renderTable(list) {
+      const tbody = document.getElementById('tableBody')
+      if (!list.length) {
+        tbody.innerHTML = `
+          <tr><td colspan="7" class="text-center py-8">
+            <i class="fa-solid fa-inbox text-gray-300 text-2xl 
+              block mb-2"></i>
+            <span class="text-gray-400 text-sm">
+              Belum ada data anggota</span>
+          </td></tr>`
+        return
+      }
+      tbody.innerHTML = list.map(a => `
+        <tr>
+          <td><span class="font-medium text-green-600">
+            ${a.no_anggota}</span></td>
+          <td class="font-medium">${a.nama}</td>
+          <td class="text-gray-500">${a.nik}</td>
+          <td>${a.no_hp || '-'}</td>
+          <td>${a.pekerjaan || '-'}</td>
+          <td>
+            <span class="badge ${
+              a.status === 'aktif' ? 'badge-success' : 'badge-danger'
+            }">${a.status}</span>
+          </td>
+          <td>
+            <button onclick="showDetail(${a.id})"
+              class="text-blue-500 hover:text-blue-700 mr-2">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <button onclick="showFormEdit(${a.id})"
+              class="text-green-500 hover:text-green-700">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('')
+    }
+
+    function renderMobile(list) {
+      const el = document.getElementById('listMobile')
+      if (!list.length) {
+        el.innerHTML = `
+          <div class="card p-6 text-center">
+            <i class="fa-solid fa-inbox text-gray-300 text-2xl mb-2"></i>
+            <p class="text-gray-400 text-sm">Belum ada data</p>
+          </div>`
+        return
+      }
+      el.innerHTML = list.map(a => `
+        <div class="card p-4" onclick="showDetail(${a.id})">
+          <div class="flex items-center gap-3">
+            <div class="bg-green-100 w-10 h-10 rounded-full flex 
+              items-center justify-center flex-shrink-0">
+              <i class="fa-solid fa-user text-green-600 text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-gray-800">${a.nama}</div>
+              <div class="text-gray-400 text-sm">${a.no_anggota}</div>
+            </div>
+            <div class="flex flex-col items-end gap-1">
+              <span class="badge ${
+                a.status === 'aktif' ? 'badge-success' : 'badge-danger'
+              }">${a.status}</span>
+              <span class="text-gray-400 text-xs">
+                ${a.no_hp || '-'}</span>
+            </div>
+          </div>
+        </div>
+      `).join('')
+    }
+
+    function filterAnggota() {
+      const q = document.getElementById('search').value.toLowerCase()
+      const status = document.getElementById('filterStatus').value
+      const filtered = dataAnggota.filter(a => {
+        const matchQ = a.nama.toLowerCase().includes(q) || 
+          a.no_anggota.toLowerCase().includes(q)
+        const matchStatus = !status || a.status === status
+        return matchQ && matchStatus
+      })
+      renderTable(filtered)
+      renderMobile(filtered)
+    }
+
+    function showDetail(id) {
+      selectedId = id
+      const a = dataAnggota.find(x => x.id === id)
+      if (!a) return
+
+      document.getElementById('detailContent').innerHTML = `
+        <div class="flex items-center gap-4 pb-4 
+          border-b border-gray-100">
+          <div class="bg-green-100 w-14 h-14 rounded-full flex 
+            items-center justify-center">
+            <i class="fa-solid fa-user text-green-600 text-xl"></i>
+          </div>
+          <div>
+            <div class="font-bold text-gray-800 text-lg">${a.nama}</div>
+            <div class="text-green-600 text-sm">${a.no_anggota}</div>
+          </div>
+        </div>
+        ${detailRow('NIK', a.nik)}
+        ${detailRow('No. HP', a.no_hp || '-')}
+        ${detailRow('Jenis Kelamin', a.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan')}
+        ${detailRow('Pekerjaan', a.pekerjaan || '-')}
+        ${detailRow('Alamat', a.alamat || '-')}
+        ${detailRow('Tgl Daftar', Helper.tanggal(a.tanggal_daftar))}
+        <div class="flex justify-between items-center py-2">
+          <span class="text-gray-500 text-sm">Status</span>
+          <span class="badge ${
+            a.status === 'aktif' ? 'badge-success' : 'badge-danger'
+          }">${a.status}</span>
+        </div>
+      `
+      document.getElementById('modalDetail')
+        .classList.remove('hidden')
+    }
+
+    function detailRow(label, value) {
+      return `
+        <div class="flex justify-between items-center py-2 
+          border-b border-gray-50">
+          <span class="text-gray-500 text-sm">${label}</span>
+          <span class="text-gray-800 text-sm font-medium 
+            text-right max-w-48">${value}</span>
+        </div>`
+    }
+
+    async function simpanAnggota() {
+      const btn = document.getElementById('btnSimpan')
+      const body = {
+        no_anggota: document.getElementById('f_no').value.trim(),
+        nik: document.getElementById('f_nik').value.trim(),
+        nama: document.getElementById('f_nama').value.trim(),
+        no_hp: document.getElementById('f_hp').value.trim(),
+        jenis_kelamin: document.getElementById('f_jk').value,
+        pekerjaan: document.getElementById('f_pekerjaan').value.trim(),
+        alamat: document.getElementById('f_alamat').value.trim(),
+        tanggal_daftar: Helper.today()
+      }
+
+      if (!body.no_anggota || !body.nik || !body.nama) {
+        showAlertForm('No. Anggota, NIK, dan Nama wajib diisi!')
+        return
+      }
+
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Menyimpan...'
+      btn.disabled = true
+
+      try {
+        const data = await Helper.fetch('/api/anggota', {
+          method: 'POST',
+          body: JSON.stringify(body)
+        })
+        if (data.success) {
+          hideForm()
+          Helper.toast('Anggota berhasil ditambahkan!')
+          loadAnggota()
+        } else {
+          showAlertForm(data.message)
+        }
+      } catch {
+        showAlertForm('Gagal menyimpan data!')
+      }
+
+      btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Simpan'
+      btn.disabled = false
+    }
+
+    function showAlertForm(msg) {
+      const el = document.getElementById('alertForm')
+      el.className = 'mt-3 p-3 rounded-xl text-sm flex items-center gap-2 bg-red-50 text-red-600 border border-red-200'
+      el.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${msg}`
+      el.classList.remove('hidden')
+    }
+
+    function showForm() {
+      document.getElementById('formTitle').textContent = 'Tambah Anggota'
+      document.getElementById('alertForm').classList.add('hidden')
+      document.getElementById('modalForm').classList.remove('hidden')
+    }
+
+    function hideForm() {
+      document.getElementById('modalForm').classList.add('hidden')
+      document.getElementById('f_no').value = ''
+      document.getElementById('f_nik').value = ''
+      document.getElementById('f_nama').value = ''
+      document.getElementById('f_hp').value = ''
+      document.getElementById('f_jk').value = ''
+      document.getElementById('f_pekerjaan').value = ''
+      document.getElementById('f_alamat').value = ''
+    }
+
+    function hideDetail() {
+      document.getElementById('modalDetail').classList.add('hidden')
+    }
+
+    function editAnggota() {
+      hideDetail()
+      showFormEdit(selectedId)
+    }
+
+    function showFormEdit(id) {
+      const a = dataAnggota.find(x => x.id === id)
+      if (!a) return
+      selectedId = id
+      document.getElementById('formTitle').textContent = 'Edit Anggota'
+      document.getElementById('f_no').value = a.no_anggota
+      document.getElementById('f_nik').value = a.nik
+      document.getElementById('f_nama').value = a.nama
+      document.getElementById('f_hp').value = a.no_hp || ''
+      document.getElementById('f_jk').value = a.jenis_kelamin || ''
+      document.getElementById('f_pekerjaan').value = a.pekerjaan || ''
+      document.getElementById('f_alamat').value = a.alamat || ''
+      document.getElementById('alertForm').classList.add('hidden')
+      document.getElementById('modalForm').classList.remove('hidden')
+    }
+
+    loadAnggota()
+  </script>
+
+</body>
+</html>
