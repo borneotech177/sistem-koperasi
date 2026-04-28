@@ -201,31 +201,27 @@
     let pesanan = []
 
     async function loadMenu() {
-      try {
-        // Load anggota untuk dropdown
-        const dataA = await Helper.fetch('/api/anggota')
-        const anggota = dataA.data || []
-        const sel = document.getElementById('selectMember')
-        anggota.forEach(a => {
-          sel.innerHTML += `
-            <option value="${a.id}">
-              ${a.nama} — ${a.no_anggota}
-            </option>`
-        })
+  try {
+    // Load anggota untuk dropdown
+    const dataA = await Helper.fetch('/api/anggota')
+    const anggota = dataA.data || []
+    const sel = document.getElementById('selectMember')
+    anggota.forEach(a => {
+      sel.innerHTML += `
+        <option value="${a.id}">
+          ${a.nama} — ${a.no_anggota}
+        </option>`
+    })
 
-        // Dummy menu kantin
-        menuList = [
-          { id:1, nama_produk:'Nasi Goreng', harga_jual:12000, stok:20, satuan:'porsi', ketersediaan:'tersedia' },
-          { id:2, nama_produk:'Mie Ayam', harga_jual:10000, stok:15, satuan:'porsi', ketersediaan:'tersedia' },
-          { id:3, nama_produk:'Es Teh Manis', harga_jual:3000, stok:50, satuan:'gelas', ketersediaan:'tersedia' },
-          { id:4, nama_produk:'Ayam Bakar', harga_jual:18000, stok:10, satuan:'porsi', ketersediaan:'tersedia' },
-          { id:5, nama_produk:'Jus Jeruk', harga_jual:8000, stok:20, satuan:'gelas', ketersediaan:'tersedia' },
-          { id:6, nama_produk:'Gorengan', harga_jual:2000, stok:100, satuan:'pcs', ketersediaan:'tersedia' },
-        ]
-        renderMenu(menuList)
-      } catch {
-        Helper.toast('Gagal memuat menu!', 'error')
-      }
+    // Load menu dari API
+    const dataM = await Helper.fetch(
+      '/api/produk?modul=kantin&status=aktif')
+    menuList = dataM.data || []
+    renderMenu(menuList)
+
+  } catch {
+    Helper.toast('Gagal memuat menu!', 'error')
+  }
     }
 
     function renderMenu(list) {
