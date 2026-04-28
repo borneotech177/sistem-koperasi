@@ -225,7 +225,7 @@
   <script src="../components/navbar.js"></script>
 
   <script>
-    Auth.check()
+Auth.checkRole('anggota')
 
     document.getElementById('sidebar').innerHTML = 
       renderSidebar('anggota')
