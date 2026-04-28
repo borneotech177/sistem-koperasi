@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manajemen User - SisKop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <div id="sidebar"></div>
+
+  <div class="lg:ml-64 min-h-screen">
+
+    <div id="navbar"></div>
+
+    <main class="p-4 lg:p-8">
+
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">Manajemen User</h2>
+          <p class="page-subtitle">Kelola akun & hak akses</p>
+        </div>
+        <button onclick="showForm()"
+          class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i>
+          Tambah User
+        </button>
+      </div>
+
+      <!-- Stat -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+        <div class="stat-card">
+          <div class="stat-icon bg-blue-100">
+            <i class="fa-solid fa-users text-blue-600"></i>
+          </div>
+          <div id="countTotal" class="stat-value">-</div>
+          <div class="stat-label">Total User</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-green-100">
+            <i class="fa-solid fa-user-check text-green-600"></i>
+          </div>
+          <div id="countAktif" class="stat-value">-</div>
+          <div class="stat-label">Aktif</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-purple-100">
+            <i class="fa-solid fa-user-shield text-purple-600"></i>
+          </div>
+          <div id="countAdmin" class="stat-value">-</div>
+          <div class="stat-label">Admin</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-yellow-100">
+            <i class="fa-solid fa-cash-register text-yellow-600"></i>
+          </div>
+          <div id="countKasir" class="stat-value">-</div>
+          <div class="stat-label">Kasir</div>
+        </div>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="card p-4 mb-4">
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          <div class="col-span-2 lg:col-span-1 relative">
+            <i class="fa-solid fa-search absolute left-3
+              top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <input id="search" type="text"
+              placeholder="Cari nama atau username..."
+              oninput="filterUser()"
+              class="input pl-9"/>
+          </div>
+          <select id="filterRole" onchange="filterUser()"
+            class="input">
+            <option value="">Semua Role</option>
+            <option value="admin">Admin</option>
+            <option value="petugas">Petugas</option>
+            <option value="kasir">Kasir</option>
+            <option value="member">Member</option>
+          </select>
+          <select id="filterStatus" onchange="filterUser()"
+            class="input">
+            <option value="">Semua Status</option>
+            <option value="aktif">Aktif</option>
+            <option value="nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tabel Desktop -->
+      <div class="card hidden lg:block overflow-hidden">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Username</th>
+              <th>Role</th>
+              <th>No. HP</th>
+              <th>Tgl Dibuat</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="7" class="text-center py-10">
+                <div class="empty-state">
+                  <div class="icon">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                  </div>
+                  <p>Memuat data user...</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- List Mobile -->
+      <div id="listMobile" class="lg:hidden space-y-3">
+        <div class="card p-6">
+          <div class="empty-state">
+            <div class="icon">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            </div>
+            <p>Memuat data...</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal Form Tambah/Edit -->
+  <div id="modalForm" class="hidden modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-5">
+        <h3 id="formTitle"
+          class="text-gray-800 font-bold text-lg">
+          Tambah User</h3>
+        <button onclick="hideForm()"
+          class="btn-icon btn-ghost">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+
+        <div class="form-group">
+          <label>Nama Lengkap *</label>
+          <input id="f_nama" type="text"
+            placeholder="Nama lengkap" class="input"/>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Username *</label>
+            <input id="f_username" type="text"
+              placeholder="username" class="input"/>
+          </div>
+          <div class="form-group">
+            <label>Role *</label>
+            <select id="f_role" class="input">
+              <option value="admin">Admin</option>
+              <option value="petugas">Petugas</option>
+              <option value="kasir">Kasir</option>
+              <option value="member">Member</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="passwordSection" class="form-group">
+          <label>Password *</label>
+          <div class="relative">
+            <input id="f_password" type="password"
+              placeholder="Min. 6 karakter" class="input pr-12"/>
+            <button onclick="togglePass()"
+              class="absolute right-3 top-1/2 -translate-y-1/2
+              text-gray-400 hover:text-gray-600">
+              <i id="eyePass" class="fa-solid fa-eye text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>No. HP</label>
+            <input id="f_hp" type="text"
+              placeholder="08xx" class="input"/>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input id="f_email" type="email"
+              placeholder="email@..." class="input"/>
+          </div>
+        </div>
+
+      </div>
+
+      <div id="alertForm"
+        class="hidden mt-3 alert alert-error"></div>
+
+      <div class="flex gap-3 mt-5">
+        <button onclick="hideForm()"
+          class="btn btn-secondary flex-1">Batal</button>
+        <button onclick="simpanUser()" id="btnSimpan"
+          class="btn btn-primary flex-1">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detail -->
+  <div id="modalDetail" class="hidden modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-gray-800 font-bold text-lg">
+          Detail User</h3>
+        <button onclick="hideDetail()"
+          class="btn-icon btn-ghost">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="detailContent" class="space-y-2 mb-4"></div>
+
+      <!-- Ganti Password -->
+      <div class="p-4 bg-gray-50 rounded-xl">
+        <h4 class="text-gray-700 font-semibold mb-3">
+          <i class="fa-solid fa-key text-yellow-600 mr-2"></i>
+          Ganti Password
+        </h4>
+        <div class="flex gap-2">
+          <div class="relative flex-1">
+            <input id="newPassword" type="password"
+              placeholder="Password baru (min. 6 karakter)"
+              class="input pr-10"/>
+            <button onclick="toggleNewPass()"
+              class="absolute right-3 top-1/2 -translate-y-1/2
+              text-gray-400">
+              <i id="eyeNew" class="fa-solid fa-eye text-sm"></i>
+            </button>
+          </div>
+          <button onclick="gantiPassword()"
+            class="btn btn-primary">
+            <i class="fa-solid fa-check"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-4">
+        <button onclick="hideDetail()"
+          class="btn btn-secondary flex-1">Tutup</button>
+        <button onclick="editUser()"
+          class="btn btn-primary flex-1">
+          <i class="fa-solid fa-pen"></i>
+          Edit
+        </button>
+        <button onclick="nonaktifkanUser()"
+          class="btn btn-danger btn-sm">
+          <i class="fa-solid fa-ban"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../components/sidebar.js"></script>
+  <script src="../components/navbar.js"></script>
+
+  <script>
+    Auth.check()
+
+    document.getElementById('sidebar').innerHTML =
+      renderSidebar('users')
+    document.getElementById('navbar').innerHTML =
+      renderNavbar('Manajemen User', 'users')
+    startClock()
+
+    let dataUser = []
+    let selectedId = null
+    let isEdit = false
+
+    async function loadUser() {
+      try {
+        const data = await Helper.fetch('/api/users')
+        dataUser = data.data || []
+        updateStats()
+        renderTable(dataUser)
+        renderMobile(dataUser)
+      } catch {
+        Helper.toast('Gagal memuat data user!', 'error')
+      }
+    }
+
+    function updateStats() {
+      const aktif = dataUser.filter(
+        u => u.status === 'aktif').length
+      const admin = dataUser.filter(
+        u => u.role === 'admin').length
+      const kasir = dataUser.filter(
+        u => u.role === 'kasir').length
+      document.getElementById('countTotal').textContent =
+        dataUser.length
+      document.getElementById('countAktif').textContent = aktif
+      document.getElementById('countAdmin').textContent = admin
+      document.getElementById('countKasir').textContent = kasir
+    }
+
+    const roleBadge = {
+      admin:   'badge-purple',
+      petugas: 'badge-info',
+      kasir:   'badge-warning',
+      member:  'badge-gray'
+    }
+
+    const roleIcon = {
+      admin:   'fa-user-shield',
+      petugas: 'fa-user-tie',
+      kasir:   'fa-cash-register',
+      member:  'fa-user'
+    }
+
+    function renderTable(list) {
+      const tbody = document.getElementById('tableBody')
+      if (!list.length) {
+        tbody.innerHTML = `
+          <tr><td colspan="7">
+            <div class="empty-state">
+              <div class="icon">
+                <i class="fa-solid fa-users-slash"></i>
+              </div>
+              <h4>Belum ada user</h4>
+              <p>Klik tambah user untuk memulai</p>
+            </div>
+          </td></tr>`
+        return
+      }
+      tbody.innerHTML = list.map(u => `
+        <tr>
+          <td>
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-full bg-green-100
+                flex items-center justify-center flex-shrink-0">
+                <i class="fa-solid ${roleIcon[u.role] || 'fa-user'}
+                  text-green-600 text-xs"></i>
+              </div>
+              <span class="font-medium">${u.nama_lengkap}</span>
+            </div>
+          </td>
+          <td class="text-gray-500 font-mono text-xs">
+            @${u.username}</td>
+          <td>
+            <span class="badge ${roleBadge[u.role] || 'badge-gray'}">
+              ${u.role}</span>
+          </td>
+          <td class="text-gray-500">${u.no_hp || '-'}</td>
+          <td class="text-gray-500">
+            ${Helper.tanggal(u.created_at)}</td>
+          <td>
+            <span class="badge ${
+              u.status === 'aktif'
+                ? 'badge-success' : 'badge-danger'
+            }">${u.status}</span>
+          </td>
+          <td>
+            <div class="flex gap-1">
+              <button onclick="showDetail(${u.id})"
+                class="btn-icon btn-ghost text-blue-500">
+                <i class="fa-solid fa-eye text-sm"></i>
+              </button>
+              <button onclick="showFormEdit(${u.id})"
+                class="btn-icon btn-ghost text-green-500">
+                <i class="fa-solid fa-pen text-sm"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('')
+    }
+
+    function renderMobile(list) {
+      const el = document.getElementById('listMobile')
+      if (!list.length) {
+        el.innerHTML = `
+          <div class="card p-6">
+            <div class="empty-state">
+              <div class="icon">
+                <i class="fa-solid fa-users-slash"></i>
+              </div>
+              <h4>Belum ada user</h4>
+            </div>
+          </div>`
+        return
+      }
+      el.innerHTML = list.map(u => `
+        <div class="card p-4" onclick="showDetail(${u.id})">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-green-100
+              flex items-center justify-center flex-shrink-0">
+              <i class="fa-solid ${roleIcon[u.role] || 'fa-user'}
+                text-green-600 text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-gray-800">
+                ${u.nama_lengkap}</div>
+              <div class="text-gray-400 text-xs">
+                @${u.username}</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <span class="badge ${roleBadge[u.role] || 'badge-gray'}
+                block mb-1">${u.role}</span>
+              <span class="badge ${
+                u.status === 'aktif'
+                  ? 'badge-success' : 'badge-danger'
+              }">${u.status}</span>
+            </div>
+          </div>
+        </div>
+      `).join('')
+    }
+
+    function filterUser() {
+      const q = document.getElementById('search')
+        .value.toLowerCase()
+      const role = document.getElementById('filterRole').value
+      const status = document.getElementById('filterStatus').value
+
+      const filtered = dataUser.filter(u => {
+        const matchQ = u.nama_lengkap.toLowerCase().includes(q) ||
+          u.username.toLowerCase().includes(q)
+        const matchRole = !role || u.role === role
+        const matchStatus = !status || u.status === status
+        return matchQ && matchRole && matchStatus
+      })
+      renderTable(filtered)
+      renderMobile(filtered)
+    }
+
+    function showDetail(id) {
+      selectedId = id
+      const u = dataUser.find(x => x.id === id)
+      if (!u) return
+
+      document.getElementById('detailContent').innerHTML = `
+        <div class="flex items-center gap-4 pb-4
+          border-b border-gray-100 mb-2">
+          <div class="w-14 h-14 rounded-full bg-green-100
+            flex items-center justify-center">
+            <i class="fa-solid ${roleIcon[u.role] || 'fa-user'}
+              text-green-600 text-xl"></i>
+          </div>
+          <div>
+            <div class="font-bold text-gray-800 text-lg">
+              ${u.nama_lengkap}</div>
+            <div class="text-gray-400 text-sm">
+              @${u.username}</div>
+          </div>
+        </div>
+        ${detailRow('Role',
+          `<span class="badge ${roleBadge[u.role]}">${u.role}</span>`)}
+        ${detailRow('No. HP', u.no_hp || '-')}
+        ${detailRow('Email', u.email || '-')}
+        ${detailRow('Tgl Dibuat', Helper.tanggal(u.created_at))}
+        <div class="flex justify-between items-center py-2">
+          <span class="text-gray-500 text-sm">Status</span>
+          <span class="badge ${
+            u.status === 'aktif'
+              ? 'badge-success' : 'badge-danger'
+          }">${u.status}</span>
+        </div>
+      `
+
+      document.getElementById('newPassword').value = ''
+      document.getElementById('modalDetail')
+        .classList.remove('hidden')
+    }
+
+    function detailRow(label, value) {
+      return `
+        <div class="flex justify-between items-center py-2
+          border-b border-gray-50">
+          <span class="text-gray-500 text-sm">${label}</span>
+          <span class="text-gray-800 text-sm font-medium">
+            ${value}</span>
+        </div>`
+    }
+
+    async function simpanUser() {
+      const btn = document.getElementById('btnSimpan')
+      const body = {
+        nama_lengkap: document.getElementById('f_nama')
+          .value.trim(),
+        username: document.getElementById('f_username')
+          .value.trim(),
+        role: document.getElementById('f_role').value,
+        no_hp: document.getElementById('f_hp').value.trim(),
+        email: document.getElementById('f_email').value.trim(),
+      }
+
+      if (!isEdit) {
+        body.password = document.getElementById('f_password').value
+      }
+
+      if (!body.nama_lengkap || !body.username || !body.role) {
+        showAlertForm('Nama, username, dan role wajib diisi!')
+        return
+      }
+
+      if (!isEdit && (!body.password || body.password.length < 6)) {
+        showAlertForm('Password minimal 6 karakter!')
+        return
+      }
+
+      Helper.loading(btn, true)
+
+      try {
+        const url = isEdit
+          ? `/api/users/${selectedId}` : '/api/users'
+        const method = isEdit ? 'PUT' : 'POST'
+
+        const data = await Helper.fetch(url, {
+          method,
+          body: JSON.stringify(body)
+        })
+
+        if (data.success) {
+          hideForm()
+          Helper.toast(isEdit
+            ? 'User berhasil diupdate!'
+            : 'User berhasil ditambahkan!')
+          loadUser()
+        } else {
+          showAlertForm(data.message)
+        }
+      } catch {
+        showAlertForm('Gagal menyimpan data!')
+      }
+
+      Helper.loading(btn, false)
+    }
+
+    async function gantiPassword() {
+      const pass = document.getElementById('newPassword').value
+      if (!pass || pass.length < 6) {
+        Helper.toast('Password minimal 6 karakter!', 'error')
+        return
+      }
+
+      try {
+        const data = await Helper.fetch(
+          `/api/users/${selectedId}/password`, {
+          method: 'PATCH',
+          body: JSON.stringify({ password_baru: pass })
+        })
+
+        if (data.success) {
+          Helper.toast('Password berhasil diganti!')
+          document.getElementById('newPassword').value = ''
+        } else {
+          Helper.toast(data.message, 'error')
+        }
+      } catch {
+        Helper.toast('Gagal ganti password!', 'error')
+      }
+    }
+
+    async function nonaktifkanUser() {
+      const u = dataUser.find(x => x.id === selectedId)
+      if (u?.role === 'admin') {
+        Helper.toast('Tidak bisa nonaktifkan admin!', 'error')
+        return
+      }
+      if (!Helper.confirm('Yakin ingin menonaktifkan user ini?'))
+        return
+
+      try {
+        const data = await Helper.fetch(
+          `/api/users/${selectedId}`, { method: 'DELETE' })
+        if (data.success) {
+          hideDetail()
+          Helper.toast('User dinonaktifkan!')
+          loadUser()
+        }
+      } catch {
+        Helper.toast('Gagal menonaktifkan user!', 'error')
+      }
+    }
+
+    function showAlertForm(msg) {
+      const el = document.getElementById('alertForm')
+      el.innerHTML =
+        `<i class="fa-solid fa-circle-xmark"></i> ${msg}`
+      el.classList.remove('hidden')
+    }
+
+    function showForm() {
+      isEdit = false
+      selectedId = null
+      document.getElementById('formTitle').textContent =
+        'Tambah User'
+      document.getElementById('f_nama').value = ''
+      document.getElementById('f_username').value = ''
+      document.getElementById('f_password').value = ''
+      document.getElementById('f_role').value = 'kasir'
+      document.getElementById('f_hp').value = ''
+      document.getElementById('f_email').value = ''
+      document.getElementById('f_username').disabled = false
+      document.getElementById('passwordSection')
+        .classList.remove('hidden')
+      document.getElementById('alertForm').classList.add('hidden')
+      document.getElementById('modalForm')
+        .classList.remove('hidden')
+    }
+
+    function showFormEdit(id) {
+      const u = dataUser.find(x => x.id === id)
+      if (!u) return
+      isEdit = true
+      selectedId = id
+      document.getElementById('formTitle').textContent =
+        'Edit User'
+      document.getElementById('f_nama').value = u.nama_lengkap
+      document.getElementById('f_username').value = u.username
+      document.getElementById('f_username').disabled = true
+      document.getElementById('f_role').value = u.role
+      document.getElementById('f_hp').value = u.no_hp || ''
+      document.getElementById('f_email').value = u.email || ''
+      document.getElementById('passwordSection')
+        .classList.add('hidden')
+      document.getElementById('alertForm').classList.add('hidden')
+      document.getElementById('modalForm')
+        .classList.remove('hidden')
+    }
+
+    function editUser() {
+      hideDetail()
+      showFormEdit(selectedId)
+    }
+
+    function hideForm() {
+      document.getElementById('modalForm').classList.add('hidden')
+    }
+
+    function hideDetail() {
+      document.getElementById('modalDetail').classList.add('hidden')
+    }
+
+    function togglePass() {
+      const input = document.getElementById('f_password')
+      const icon = document.getElementById('eyePass')
+      input.type = input.type === 'password' ? 'text' : 'password'
+      icon.className = input.type === 'password'
+        ? 'fa-solid fa-eye text-sm'
+        : 'fa-solid fa-eye-slash text-sm'
+    }
+
+    function toggleNewPass() {
+      const input = document.getElementById('newPassword')
+      const icon = document.getElementById('eyeNew')
+      input.type = input.type === 'password' ? 'text' : 'password'
+      icon.className = input.type === 'password'
+        ? 'fa-solid fa-eye text-sm'
+        : 'fa-solid fa-eye-slash text-sm'
+    }
+
+    loadUser()
+  </script>
+
+</body>
+</html>
