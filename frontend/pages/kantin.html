@@ -189,6 +189,7 @@
 
   <script>
     Auth.check()
+    Auth.checkRole('kantin')
 
     document.getElementById('sidebar').innerHTML =
       renderSidebar('kantin')
