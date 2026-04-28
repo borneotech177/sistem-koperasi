@@ -2,13 +2,12 @@ function renderNavbar(title = 'Dashboard', activePage = 'dashboard') {
   const user = Auth.getUser()
 
   const bottomLinks = [
-    { id: 'dashboard', label: 'Home', icon: 'fa-house', href: 'dashboard.html' },
-    { id: 'anggota', label: 'Anggota', icon: 'fa-users', href: 'anggota.html' },
-    { id: 'toko', label: 'Toko', icon: 'fa-cart-shopping', href: 'toko.html' },
-    { id: 'kantin', label: 'Kantin', icon: 'fa-utensils', href: 'kantin.html' },
-    { id: 'laporan', label: 'Laporan', icon: 'fa-chart-bar', href: 'laporan.html' },
-  ]
-
+  { id: 'dashboard', label: 'Home', icon: 'fa-house', href: 'dashboard.html' },
+  { id: 'anggota', label: 'Anggota', icon: 'fa-users', href: 'anggota.html' },
+  { id: 'toko', label: 'Toko', icon: 'fa-cart-shopping', href: 'toko.html' },
+  { id: 'produk', label: 'Produk', icon: 'fa-box', href: 'produk.html' },
+  { id: 'laporan', label: 'Laporan', icon: 'fa-chart-bar', href: 'laporan.html' },
+]
   return `
     <!-- Topbar -->
     <header class="bg-white border-b border-gray-200 px-4 
