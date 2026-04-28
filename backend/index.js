@@ -20,10 +20,12 @@ app.use(express.json());
 const authRoutes = require('./routes/auth');
 const anggotaRoutes = require('./routes/anggota');
 const transaksiRoutes = require('./routes/transaksi');
+const produkRoutes = require('./routes/produk');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/anggota', anggotaRoutes);
 app.use('/api/transaksi', transaksiRoutes);
+app.use('/api/produk', produkRoutes);
 
 // Test endpoint
 app.get('/', (req, res) => {
