@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produk - SisKop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <div id="sidebar"></div>
+
+  <div class="lg:ml-64 min-h-screen">
+
+    <div id="navbar"></div>
+
+    <main class="p-4 lg:p-8">
+
+      <!-- Header -->
+      <div class="page-header">
+        <div>
+          <h2 class="page-title">Manajemen Produk</h2>
+          <p class="page-subtitle">Kelola produk toko & kantin</p>
+        </div>
+        <button onclick="showForm()"
+          class="btn btn-primary">
+          <i class="fa-solid fa-plus"></i>
+          Tambah Produk
+        </button>
+      </div>
+
+      <!-- Filter & Search -->
+      <div class="card p-4 mb-4">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="col-span-2 lg:col-span-2 relative">
+            <i class="fa-solid fa-search absolute left-3 
+              top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <input id="search" type="text"
+              placeholder="Cari kode atau nama produk..."
+              oninput="filterProduk()"
+              class="input pl-9"/>
+          </div>
+          <select id="filterModul" onchange="filterProduk()"
+            class="input">
+            <option value="">Semua Modul</option>
+            <option value="toko">Toko</option>
+            <option value="kantin">Kantin</option>
+          </select>
+          <select id="filterStatus" onchange="filterProduk()"
+            class="input">
+            <option value="">Semua Status</option>
+            <option value="aktif">Aktif</option>
+            <option value="nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Stat -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+        <div class="stat-card">
+          <div class="stat-icon bg-blue-100">
+            <i class="fa-solid fa-box text-blue-600"></i>
+          </div>
+          <div id="countTotal" class="stat-value">-</div>
+          <div class="stat-label">Total Produk</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-green-100">
+            <i class="fa-solid fa-check text-green-600"></i>
+          </div>
+          <div id="countAktif" class="stat-value">-</div>
+          <div class="stat-label">Aktif</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-yellow-100">
+            <i class="fa-solid fa-cart-shopping text-yellow-600"></i>
+          </div>
+          <div id="countToko" class="stat-value">-</div>
+          <div class="stat-label">Produk Toko</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon bg-orange-100">
+            <i class="fa-solid fa-utensils text-orange-600"></i>
+          </div>
+          <div id="countKantin" class="stat-value">-</div>
+          <div class="stat-label">Menu Kantin</div>
+        </div>
+      </div>
+
+      <!-- Tabel Desktop -->
+      <div class="card hidden lg:block overflow-hidden">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Kode</th>
+              <th>Nama Produk</th>
+              <th>Modul</th>
+              <th>Harga Beli</th>
+              <th>Harga Jual</th>
+              <th>Stok</th>
+              <th>Satuan</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr>
+              <td colspan="9" class="text-center py-10">
+                <div class="empty-state">
+                  <div class="icon">
+                    <i class="fa-solid fa-spinner fa-spin"></i>
+                  </div>
+                  <p>Memuat data produk...</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- List Mobile -->
+      <div id="listMobile" class="lg:hidden space-y-3">
+        <div class="card p-6">
+          <div class="empty-state">
+            <div class="icon">
+              <i class="fa-solid fa-spinner fa-spin"></i>
+            </div>
+            <p>Memuat data...</p>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal Form Tambah/Edit -->
+  <div id="modalForm" class="hidden modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-5">
+        <h3 id="formTitle" 
+          class="text-gray-800 font-bold text-lg">
+          Tambah Produk</h3>
+        <button onclick="hideForm()"
+          class="btn-icon btn-ghost">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-3">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Kode Produk *</label>
+            <input id="f_kode" type="text"
+              placeholder="PRD-001" class="input"/>
+          </div>
+          <div class="form-group">
+            <label>Modul *</label>
+            <select id="f_modul" class="input">
+              <option value="toko">Toko</option>
+              <option value="kantin">Kantin</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Nama Produk *</label>
+          <input id="f_nama" type="text"
+            placeholder="Nama produk" class="input"/>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Harga Beli (Rp)</label>
+            <input id="f_harga_beli" type="number"
+              placeholder="0" class="input"/>
+          </div>
+          <div class="form-group">
+            <label>Harga Jual (Rp) *</label>
+            <input id="f_harga_jual" type="number"
+              placeholder="0" class="input"/>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Stok Awal</label>
+            <input id="f_stok" type="number"
+              placeholder="0" class="input"/>
+          </div>
+          <div class="form-group">
+            <label>Stok Minimum</label>
+            <input id="f_stok_min" type="number"
+              placeholder="5" class="input"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Satuan</label>
+          <select id="f_satuan" class="input">
+            <option value="pcs">pcs</option>
+            <option value="kg">kg</option>
+            <option value="gram">gram</option>
+            <option value="liter">liter</option>
+            <option value="porsi">porsi</option>
+            <option value="gelas">gelas</option>
+            <option value="botol">botol</option>
+            <option value="kotak">kotak</option>
+            <option value="lusin">lusin</option>
+            <option value="karton">karton</option>
+          </select>
+        </div>
+
+      </div>
+
+      <!-- Margin Preview -->
+      <div id="marginPreview" 
+        class="hidden mt-3 p-3 bg-green-50 rounded-xl 
+        border border-green-200">
+        <div class="flex justify-between text-sm">
+          <span class="text-gray-600">Margin Keuntungan</span>
+          <span id="marginValue" 
+            class="font-bold text-green-600"></span>
+        </div>
+        <div class="flex justify-between text-sm mt-1">
+          <span class="text-gray-600">Persentase</span>
+          <span id="marginPersen" 
+            class="font-semibold text-green-600"></span>
+        </div>
+      </div>
+
+      <div id="alertForm" 
+        class="hidden mt-3 alert alert-error"></div>
+
+      <div class="flex gap-3 mt-5">
+        <button onclick="hideForm()"
+          class="btn btn-secondary flex-1">Batal</button>
+        <button onclick="simpanProduk()" id="btnSimpan"
+          class="btn btn-primary flex-1">
+          <i class="fa-solid fa-floppy-disk"></i>
+          Simpan
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Detail -->
+  <div id="modalDetail" class="hidden modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-5">
+        <h3 class="text-gray-800 font-bold text-lg">
+          Detail Produk</h3>
+        <button onclick="hideDetail()"
+          class="btn-icon btn-ghost">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div id="detailContent" class="space-y-2"></div>
+
+      <!-- Stok Management -->
+      <div class="mt-4 p-4 bg-gray-50 rounded-xl">
+        <h4 class="text-gray-700 font-semibold mb-3">
+          <i class="fa-solid fa-boxes-stacking 
+            text-blue-600 mr-2"></i>
+          Update Stok
+        </h4>
+        <div class="flex gap-2 mb-3">
+          <button onclick="setJenisStok('masuk')" 
+            id="btnMasuk"
+            class="btn btn-primary flex-1 btn-sm">
+            <i class="fa-solid fa-plus"></i>
+            Stok Masuk
+          </button>
+          <button onclick="setJenisStok('keluar')"
+            id="btnKeluar"
+            class="btn btn-secondary flex-1 btn-sm">
+            <i class="fa-solid fa-minus"></i>
+            Stok Keluar
+          </button>
+        </div>
+        <div class="flex gap-2">
+          <input id="jumlahStok" type="number"
+            placeholder="Jumlah" class="input"/>
+          <button onclick="updateStok()"
+            class="btn btn-primary">
+            <i class="fa-solid fa-check"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-4">
+        <button onclick="hideDetail()"
+          class="btn btn-secondary flex-1">Tutup</button>
+        <button onclick="editProduk()"
+          class="btn btn-primary flex-1">
+          <i class="fa-solid fa-pen"></i>
+          Edit
+        </button>
+        <button onclick="nonaktifkanProduk()"
+          class="btn btn-danger btn-sm">
+          <i class="fa-solid fa-ban"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../components/sidebar.js"></script>
+  <script src="../components/navbar.js"></script>
+
+  <script>
+    Auth.check()
+
+    document.getElementById('sidebar').innerHTML =
+      renderSidebar('produk')
+    document.getElementById('navbar').innerHTML =
+      renderNavbar('Manajemen Produk', 'produk')
+    startClock()
+
+    let dataProduk = []
+    let selectedId = null
+    let jenisStok = 'masuk'
+    let isEdit = false
+
+    // Hitung margin otomatis
+    document.addEventListener('input', (e) => {
+      if (e.target.id === 'f_harga_beli' || 
+        e.target.id === 'f_harga_jual') {
+        hitungMargin()
+      }
+    })
+
+    function hitungMargin() {
+      const beli = parseFloat(
+        document.getElementById('f_harga_beli').value) || 0
+      const jual = parseFloat(
+        document.getElementById('f_harga_jual').value) || 0
+      if (beli > 0 && jual > 0) {
+        const margin = jual - beli
+        const persen = ((margin / beli) * 100).toFixed(1)
+        document.getElementById('marginValue').textContent =
+          Helper.rupiah(margin)
+        document.getElementById('marginPersen').textContent =
+          `${persen}%`
+        document.getElementById('marginPreview')
+          .classList.remove('hidden')
+      }
+    }
+
+    async function loadProduk() {
+      try {
+        const data = await Helper.fetch('/api/produk')
+        dataProduk = data.data || []
+        updateStats()
+        renderTable(dataProduk)
+        renderMobile(dataProduk)
+      } catch {
+        Helper.toast('Gagal memuat data produk!', 'error')
+      }
+    }
+
+    function updateStats() {
+      const aktif = dataProduk.filter(
+        p => p.status === 'aktif').length
+      const toko = dataProduk.filter(
+        p => p.modul === 'toko').length
+      const kantin = dataProduk.filter(
+        p => p.modul === 'kantin').length
+      document.getElementById('countTotal').textContent =
+        dataProduk.length
+      document.getElementById('countAktif').textContent = aktif
+      document.getElementById('countToko').textContent = toko
+      document.getElementById('countKantin').textContent = kantin
+    }
+
+    function renderTable(list) {
+      const tbody = document.getElementById('tableBody')
+      if (!list.length) {
+        tbody.innerHTML = `
+          <tr><td colspan="9">
+            <div class="empty-state">
+              <div class="icon">
+                <i class="fa-solid fa-box-open"></i>
+              </div>
+              <h4>Belum ada produk</h4>
+              <p>Klik tambah produk untuk memulai</p>
+            </div>
+          </td></tr>`
+        return
+      }
+      tbody.innerHTML = list.map(p => `
+        <tr>
+          <td>
+            <span class="font-mono text-xs bg-gray-100 
+              px-2 py-1 rounded-lg text-gray-600">
+              ${p.kode_produk}</span>
+          </td>
+          <td class="font-medium">${p.nama_produk}</td>
+          <td>
+            <span class="badge ${
+              p.modul === 'toko' 
+                ? 'badge-warning' : 'badge-orange'
+            }">${p.modul}</span>
+          </td>
+          <td class="text-gray-500">
+            ${p.harga_beli 
+              ? Helper.rupiah(p.harga_beli) : '-'}</td>
+          <td class="font-semibold text-green-600">
+            ${Helper.rupiah(p.harga_jual)}</td>
+          <td>
+            <span class="${
+              p.stok <= p.stok_minimum 
+                ? 'text-red-600 font-bold' 
+                : 'text-gray-800'
+            }">
+              ${p.stok}
+              ${p.stok <= p.stok_minimum 
+                ? '<i class="fa-solid fa-triangle-exclamation text-red-500 text-xs ml-1"></i>' 
+                : ''}
+            </span>
+          </td>
+          <td class="text-gray-500">${p.satuan}</td>
+          <td>
+            <span class="badge ${
+              p.status === 'aktif' 
+                ? 'badge-success' : 'badge-danger'
+            }">${p.status}</span>
+          </td>
+          <td>
+            <div class="flex gap-1">
+              <button onclick="showDetail(${p.id})"
+                class="btn-icon btn-ghost text-blue-500">
+                <i class="fa-solid fa-eye text-sm"></i>
+              </button>
+              <button onclick="showFormEdit(${p.id})"
+                class="btn-icon btn-ghost text-green-500">
+                <i class="fa-solid fa-pen text-sm"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('')
+    }
+
+    function renderMobile(list) {
+      const el = document.getElementById('listMobile')
+      if (!list.length) {
+        el.innerHTML = `
+          <div class="card p-6">
+            <div class="empty-state">
+              <div class="icon">
+                <i class="fa-solid fa-box-open"></i>
+              </div>
+              <h4>Belum ada produk</h4>
+              <p>Klik tambah produk untuk memulai</p>
+            </div>
+          </div>`
+        return
+      }
+      el.innerHTML = list.map(p => `
+        <div class="card p-4" onclick="showDetail(${p.id})">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl flex items-center 
+              justify-center flex-shrink-0 ${
+              p.modul === 'toko' 
+                ? 'bg-yellow-100' : 'bg-orange-100'
+            }">
+              <i class="fa-solid ${
+                p.modul === 'toko' 
+                  ? 'fa-box text-yellow-600' 
+                  : 'fa-bowl-food text-orange-600'
+              } text-sm"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-gray-800 truncate">
+                ${p.nama_produk}</div>
+              <div class="text-gray-400 text-xs">
+                ${p.kode_produk}</div>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <div class="font-bold text-green-600 text-sm">
+                ${Helper.rupiah(p.harga_jual)}</div>
+              <div class="flex items-center gap-1 
+                justify-end mt-0.5">
+                <span class="text-gray-500 text-xs">
+                  Stok: ${p.stok}</span>
+                ${p.stok <= p.stok_minimum 
+                  ? '<i class="fa-solid fa-triangle-exclamation text-red-500 text-xs"></i>' 
+                  : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('')
+    }
+
+    function filterProduk() {
+      const q = document.getElementById('search')
+        .value.toLowerCase()
+      const modul = document.getElementById('filterModul').value
+      const status = document.getElementById('filterStatus').value
+
+      const filtered = dataProduk.filter(p => {
+        const matchQ = p.nama_produk.toLowerCase().includes(q) ||
+          p.kode_produk.toLowerCase().includes(q)
+        const matchModul = !modul || p.modul === modul
+        const matchStatus = !status || p.status === status
+        return matchQ && matchModul && matchStatus
+      })
+      renderTable(filtered)
+      renderMobile(filtered)
+    }
+
+    function showDetail(id) {
+      selectedId = id
+      const p = dataProduk.find(x => x.id === id)
+      if (!p) return
+
+      const margin = p.harga_beli 
+        ? p.harga_jual - p.harga_beli : null
+      const marginPersen = p.harga_beli 
+        ? ((margin / p.harga_beli) * 100).toFixed(1) : null
+
+      document.getElementById('detailContent').innerHTML = `
+        <div class="flex items-center gap-3 pb-4 
+          border-b border-gray-100 mb-2">
+          <div class="w-12 h-12 rounded-xl flex items-center 
+            justify-center ${
+            p.modul === 'toko' 
+              ? 'bg-yellow-100' : 'bg-orange-100'
+          }">
+            <i class="fa-solid ${
+              p.modul === 'toko' 
+                ? 'fa-box text-yellow-600' 
+                : 'fa-bowl-food text-orange-600'
+            } text-xl"></i>
+          </div>
+          <div>
+            <div class="font-bold text-gray-800 text-lg">
+              ${p.nama_produk}</div>
+            <div class="flex gap-2 mt-1">
+              <span class="font-mono text-xs bg-gray-100 
+                px-2 py-0.5 rounded text-gray-500">
+                ${p.kode_produk}</span>
+              <span class="badge ${
+                p.modul === 'toko' 
+                  ? 'badge-warning' : 'badge-orange'
+              }">${p.modul}</span>
+            </div>
+          </div>
+        </div>
+
+        ${detailRow('Harga Beli', 
+          p.harga_beli ? Helper.rupiah(p.harga_beli) : '-')}
+        ${detailRow('Harga Jual', Helper.rupiah(p.harga_jual))}
+        ${margin !== null 
+          ? detailRow('Margin', 
+            `${Helper.rupiah(margin)} (${marginPersen}%)`) 
+          : ''}
+        ${detailRow('Stok', `${p.stok} ${p.satuan}`)}
+        ${detailRow('Stok Minimum', 
+          `${p.stok_minimum} ${p.satuan}`)}
+        <div class="flex justify-between items-center py-2">
+          <span class="text-gray-500 text-sm">Status</span>
+          <span class="badge ${
+            p.status === 'aktif' 
+              ? 'badge-success' : 'badge-danger'
+          }">${p.status}</span>
+        </div>
+      `
+
+      jenisStok = 'masuk'
+      document.getElementById('btnMasuk').className =
+        'btn btn-primary flex-1 btn-sm'
+      document.getElementById('btnKeluar').className =
+        'btn btn-secondary flex-1 btn-sm'
+      document.getElementById('jumlahStok').value = ''
+
+      document.getElementById('modalDetail')
+        .classList.remove('hidden')
+    }
+
+    function detailRow(label, value) {
+      return `
+        <div class="flex justify-between items-center py-2 
+          border-b border-gray-50">
+          <span class="text-gray-500 text-sm">${label}</span>
+          <span class="text-gray-800 text-sm font-medium">
+            ${value}</span>
+        </div>`
+    }
+
+    function setJenisStok(jenis) {
+      jenisStok = jenis
+      document.getElementById('btnMasuk').className =
+        `btn ${jenis === 'masuk' ? 'btn-primary' : 'btn-secondary'} flex-1 btn-sm`
+      document.getElementById('btnKeluar').className =
+        `btn ${jenis === 'keluar' ? 'btn-primary' : 'btn-secondary'} flex-1 btn-sm`
+    }
+
+    async function updateStok() {
+      const jumlah = parseInt(
+        document.getElementById('jumlahStok').value)
+      if (!jumlah || jumlah <= 0) {
+        Helper.toast('Masukkan jumlah stok!', 'error')
+        return
+      }
+
+      try {
+        const data = await Helper.fetch(
+          `/api/produk/${selectedId}/stok`, {
+          method: 'PATCH',
+          body: JSON.stringify({
+            jumlah,
+            jenis: jenisStok,
+            keterangan: `Update manual`
+          })
+        })
+
+        if (data.success) {
+          Helper.toast(`Stok berhasil di-update!`)
+          hideDetail()
+          loadProduk()
+        } else {
+          Helper.toast(data.message, 'error')
+        }
+      } catch {
+        Helper.toast('Gagal update stok!', 'error')
+      }
+    }
+
+    async function simpanProduk() {
+      const btn = document.getElementById('btnSimpan')
+      const body = {
+        kode_produk: document.getElementById('f_kode')
+          .value.trim(),
+        nama_produk: document.getElementById('f_nama')
+          .value.trim(),
+        harga_beli: parseFloat(
+          document.getElementById('f_harga_beli').value) || 0,
+        harga_jual: parseFloat(
+          document.getElementById('f_harga_jual').value),
+        stok: parseInt(
+          document.getElementById('f_stok').value) || 0,
+        stok_minimum: parseInt(
+          document.getElementById('f_stok_min').value) || 5,
+        satuan: document.getElementById('f_satuan').value,
+        modul: document.getElementById('f_modul').value
+      }
+
+      if (!body.kode_produk || !body.nama_produk || 
+        !body.harga_jual) {
+        showAlertForm('Kode, nama, dan harga jual wajib diisi!')
+        return
+      }
+
+      Helper.loading(btn, true)
+
+      try {
+        const url = isEdit 
+          ? `/api/produk/${selectedId}` : '/api/produk'
+        const method = isEdit ? 'PUT' : 'POST'
+
+        const data = await Helper.fetch(url, {
+          method,
+          body: JSON.stringify(body)
+        })
+
+        if (data.success) {
+          hideForm()
+          Helper.toast(isEdit 
+            ? 'Produk berhasil diupdate!' 
+            : 'Produk berhasil ditambahkan!')
+          loadProduk()
+        } else {
+          showAlertForm(data.message)
+        }
+      } catch {
+        showAlertForm('Gagal menyimpan produk!')
+      }
+
+      Helper.loading(btn, false)
+    }
+
+    async function nonaktifkanProduk() {
+      if (!Helper.confirm(
+        'Yakin ingin menonaktifkan produk ini?')) return
+
+      try {
+        const data = await Helper.fetch(
+          `/api/produk/${selectedId}`, { method: 'DELETE' })
+        if (data.success) {
+          hideDetail()
+          Helper.toast('Produk dinonaktifkan!')
+          loadProduk()
+        }
+      } catch {
+        Helper.toast('Gagal menonaktifkan produk!', 'error')
+      }
+    }
+
+    function showAlertForm(msg) {
+      const el = document.getElementById('alertForm')
+      el.innerHTML = `
+        <i class="fa-solid fa-circle-xmark"></i> ${msg}`
+      el.classList.remove('hidden')
+    }
+
+    function showForm() {
+      isEdit = false
+      selectedId = null
+      document.getElementById('formTitle').textContent =
+        'Tambah Produk'
+      document.getElementById('f_kode').value = ''
+      document.getElementById('f_nama').value = ''
+      document.getElementById('f_harga_beli').value = ''
+      document.getElementById('f_harga_jual').value = ''
+      document.getElementById('f_stok').value = ''
+      document.getElementById('f_stok_min').value = '5'
+      document.getElementById('f_satuan').value = 'pcs'
+      document.getElementById('f_modul').value = 'toko'
+      document.getElementById('alertForm').classList.add('hidden')
+      document.getElementById('marginPreview')
+        .classList.add('hidden')
+      document.getElementById('modalForm')
+        .classList.remove('hidden')
+    }
+
+    function showFormEdit(id) {
+      const p = dataProduk.find(x => x.id === id)
+      if (!p) return
+      isEdit = true
+      selectedId = id
+      document.getElementById('formTitle').textContent =
+        'Edit Produk'
+      document.getElementById('f_kode').value = p.kode_produk
+      document.getElementById('f_nama').value = p.nama_produk
+      document.getElementById('f_harga_beli').value =
+        p.harga_beli || ''
+      document.getElementById('f_harga_jual').value = p.harga_jual
+      document.getElementById('f_stok').value = p.stok
+      document.getElementById('f_stok_min').value = p.stok_minimum
+      document.getElementById('f_satuan').value = p.satuan
+      document.getElementById('f_modul').value = p.modul
+      document.getElementById('alertForm').classList.add('hidden')
+      hitungMargin()
+      document.getElementById('modalForm')
+        .classList.remove('hidden')
+    }
+
+    function editProduk() {
+      hideDetail()
+      showFormEdit(selectedId)
+    }
+
+    function hideForm() {
+      document.getElementById('modalForm').classList.add('hidden')
+    }
+
+    function hideDetail() {
+      document.getElementById('modalDetail').classList.add('hidden')
+    }
+
+    loadProduk()
+  </script>
+
+</body>
+</html>
