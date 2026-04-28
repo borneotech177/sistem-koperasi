@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>eKantin - SisKop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="../css/style.css"/>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+  <div id="sidebar"></div>
+
+  <div class="lg:ml-64 min-h-screen">
+
+    <div id="navbar"></div>
+
+    <main class="p-4 lg:p-8">
+
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h2 class="text-gray-800 font-bold text-xl">eKantin</h2>
+          <p class="text-gray-400 text-sm mt-0.5">
+            Transaksi kantin koperasi</p>
+        </div>
+        <button onclick="showProdukManager()"
+          class="btn btn-secondary">
+          <i class="fa-solid fa-bowl-food"></i>
+          Menu
+        </button>
+      </div>
+
+      <div class="lg:grid lg:grid-cols-3 lg:gap-6">
+
+        <!-- Kiri: Menu Kantin -->
+        <div class="lg:col-span-2">
+
+          <!-- Search -->
+          <div class="card p-3 mb-4">
+            <div class="relative">
+              <i class="fa-solid fa-search absolute left-3 
+                top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+              <input id="searchMenu" type="text"
+                placeholder="Cari menu..."
+                oninput="filterMenu()"
+                class="input pl-9"/>
+            </div>
+          </div>
+
+          <!-- Grid Menu -->
+          <div id="gridMenu"
+            class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4">
+            <div class="col-span-2 md:col-span-3 card p-6 
+              text-center">
+              <i class="fa-solid fa-spinner fa-spin 
+                text-gray-300 text-2xl mb-2"></i>
+              <p class="text-gray-400 text-sm">Memuat menu...</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Kanan: Keranjang -->
+        <div class="lg:col-span-1">
+          <div class="card p-4 lg:sticky lg:top-24">
+
+            <h3 class="font-bold text-gray-800 mb-3 flex 
+              items-center gap-2">
+              <i class="fa-solid fa-utensils text-orange-600"></i>
+              Pesanan
+              <span id="badgePesanan"
+                class="hidden bg-orange-500 text-white text-xs
+                w-5 h-5 rounded-full flex items-center 
+                justify-center"></span>
+            </h3>
+
+            <div id="listPesanan">
+              <div class="text-center py-6">
+                <i class="fa-solid fa-utensils 
+                  text-gray-200 text-3xl mb-2"></i>
+                <p class="text-gray-400 text-sm">
+                  Belum ada pesanan</p>
+              </div>
+            </div>
+
+            <div id="sectionTotal" class="hidden">
+              <div class="border-t border-gray-100 pt-3 
+                mt-3 space-y-2">
+                <div class="flex justify-between text-sm">
+                  <span class="text-gray-500">Total</span>
+                  <span id="totalPesanan"
+                    class="font-bold text-gray-800"></span>
+                </div>
+
+                <!-- Pilih Member -->
+                <div>
+                  <label class="text-gray-500 text-sm 
+                    mb-1 block">Member (Opsional)</label>
+                  <select id="selectMember" class="input">
+                    <option value="">Umum / Non-Member</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="text-gray-500 text-sm 
+                    mb-1 block">Metode Bayar</label>
+                  <select id="metodeBayar" class="input">
+                    <option value="tunai">Tunai</option>
+                    <option value="saldo_rfid">Saldo RFID</option>
+                    <option value="transfer">Transfer</option>
+                  </select>
+                </div>
+
+                <button onclick="prosesPesanan()"
+                  id="btnProses"
+                  class="btn btn-primary w-full justify-center"
+                  style="background: linear-gradient(135deg, #c2410c, #ea580c)">
+                  <i class="fa-solid fa-check"></i>
+                  Proses Pesanan
+                </button>
+                <button onclick="clearPesanan()"
+                  class="btn btn-secondary w-full justify-center">
+                  <i class="fa-solid fa-trash"></i>
+                  Kosongkan
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal Sukses -->
+  <div id="modalSukses" class="hidden modal-overlay">
+    <div class="modal-box text-center">
+      <div class="bg-orange-100 w-16 h-16 rounded-full flex 
+        items-center justify-center mx-auto mb-4">
+        <i class="fa-solid fa-check text-orange-600 text-2xl"></i>
+      </div>
+      <h3 class="text-gray-800 font-bold text-xl mb-2">
+        Pesanan Berhasil!</h3>
+      <p id="infoPesanan" class="text-gray-500 text-sm mb-2"></p>
+      <p id="infoTotal"
+        class="text-orange-600 font-bold text-xl mb-5"></p>
+      <button onclick="selesai()"
+        class="btn btn-primary w-full justify-center">
+        <i class="fa-solid fa-plus"></i>
+        Pesanan Baru
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal Menu Manager -->
+  <div id="modalMenu" class="hidden modal-overlay">
+    <div class="modal-box">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-gray-800 font-bold text-lg">
+          Manajemen Menu</h3>
+        <button onclick="hideMenuManager()"
+          class="text-gray-400 hover:text-gray-600 w-8 h-8 
+          flex items-center justify-center rounded-lg 
+          hover:bg-gray-100">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <button onclick="showFormMenu()"
+        class="btn btn-primary w-full justify-center mb-4">
+        <i class="fa-solid fa-plus"></i>
+        Tambah Menu Baru
+      </button>
+
+      <div id="listMenuManager" class="space-y-2 
+        max-h-64 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/helper.js"></script>
+  <script src="../components/sidebar.js"></script>
+  <script src="../components/navbar.js"></script>
+
+  <script>
+    Auth.check()
+
+    document.getElementById('sidebar').innerHTML =
+      renderSidebar('kantin')
+    document.getElementById('navbar').innerHTML =
+      renderNavbar('eKantin', 'kantin')
+    startClock()
+
+    const user = Auth.getUser()
+    let menuList = []
+    let pesanan = []
+
+    async function loadMenu() {
+      try {
+        // Load anggota untuk dropdown
+        const dataA = await Helper.fetch('/api/anggota')
+        const anggota = dataA.data || []
+        const sel = document.getElementById('selectMember')
+        anggota.forEach(a => {
+          sel.innerHTML += `
+            <option value="${a.id}">
+              ${a.nama} — ${a.no_anggota}
+            </option>`
+        })
+
+        // Dummy menu kantin
+        menuList = [
+          { id:1, nama_produk:'Nasi Goreng', harga_jual:12000, stok:20, satuan:'porsi', ketersediaan:'tersedia' },
+          { id:2, nama_produk:'Mie Ayam', harga_jual:10000, stok:15, satuan:'porsi', ketersediaan:'tersedia' },
+          { id:3, nama_produk:'Es Teh Manis', harga_jual:3000, stok:50, satuan:'gelas', ketersediaan:'tersedia' },
+          { id:4, nama_produk:'Ayam Bakar', harga_jual:18000, stok:10, satuan:'porsi', ketersediaan:'tersedia' },
+          { id:5, nama_produk:'Jus Jeruk', harga_jual:8000, stok:20, satuan:'gelas', ketersediaan:'tersedia' },
+          { id:6, nama_produk:'Gorengan', harga_jual:2000, stok:100, satuan:'pcs', ketersediaan:'tersedia' },
+        ]
+        renderMenu(menuList)
+      } catch {
+        Helper.toast('Gagal memuat menu!', 'error')
+      }
+    }
+
+    function renderMenu(list) {
+      const el = document.getElementById('gridMenu')
+      if (!list.length) {
+        el.innerHTML = `
+          <div class="col-span-2 md:col-span-3 card p-6 
+            text-center">
+            <i class="fa-solid fa-bowl-food text-gray-300 
+              text-2xl mb-2"></i>
+            <p class="text-gray-400 text-sm">
+              Tidak ada menu</p>
+          </div>`
+        return
+      }
+      el.innerHTML = list.map(m => `
+        <div onclick="tambahPesanan(${m.id})"
+          class="card p-3 cursor-pointer active:scale-95 
+          transition group ${
+            m.ketersediaan === 'habis' 
+              ? 'opacity-50 pointer-events-none' : ''
+          }">
+          <div class="bg-orange-100 group-hover:bg-orange-200 
+            w-10 h-10 rounded-xl flex items-center 
+            justify-center mb-2 transition">
+            <i class="fa-solid fa-bowl-food text-orange-600"></i>
+          </div>
+          <div class="text-gray-800 text-sm font-semibold 
+            leading-tight">${m.nama_produk}</div>
+          <div class="text-orange-600 font-bold text-sm mt-1">
+            ${Helper.rupiah(m.harga_jual)}</div>
+          <div class="flex items-center justify-between mt-0.5">
+            <span class="text-gray-400 text-xs">
+              ${m.stok} ${m.satuan}</span>
+            <span class="badge ${
+              m.ketersediaan === 'tersedia' 
+                ? 'badge-success' : 'badge-danger'
+            } text-xs">${m.ketersediaan}</span>
+          </div>
+        </div>
+      `).join('')
+    }
+
+    function filterMenu() {
+      const q = document.getElementById('searchMenu')
+        .value.toLowerCase()
+      renderMenu(menuList.filter(m =>
+        m.nama_produk.toLowerCase().includes(q)))
+    }
+
+    function tambahPesanan(id) {
+      const m = menuList.find(x => x.id === id)
+      const existing = pesanan.find(p => p.id === id)
+      if (existing) {
+        existing.jumlah++
+      } else {
+        pesanan.push({ ...m, jumlah: 1 })
+      }
+      updatePesanan()
+      Helper.toast(`${m.nama_produk} ditambahkan`, 'success')
+    }
+
+    function kurangi(id) {
+      const idx = pesanan.findIndex(p => p.id === id)
+      if (idx === -1) return
+      pesanan[idx].jumlah--
+      if (pesanan[idx].jumlah === 0) pesanan.splice(idx, 1)
+      updatePesanan()
+    }
+
+    function tambah(id) {
+      tambahPesanan(id)
+    }
+
+    function hapusItem(id) {
+      pesanan = pesanan.filter(p => p.id !== id)
+      updatePesanan()
+    }
+
+    function clearPesanan() {
+      pesanan = []
+      updatePesanan()
+    }
+
+    function updatePesanan() {
+      const total = pesanan.reduce((s, p) =>
+        s + (p.harga_jual * p.jumlah), 0)
+      const count = pesanan.reduce((s, p) => s + p.jumlah, 0)
+
+      const badge = document.getElementById('badgePesanan')
+      if (count > 0) {
+        badge.textContent = count
+        badge.classList.remove('hidden')
+      } else {
+        badge.classList.add('hidden')
+      }
+
+      document.getElementById('totalPesanan').textContent =
+        Helper.rupiah(total)
+
+      const sec = document.getElementById('sectionTotal')
+      const list = document.getElementById('listPesanan')
+
+      if (!pesanan.length) {
+        sec.classList.add('hidden')
+        list.innerHTML = `
+          <div class="text-center py-6">
+            <i class="fa-solid fa-utensils 
+              text-gray-200 text-3xl mb-2"></i>
+            <p class="text-gray-400 text-sm">
+              Belum ada pesanan</p>
+          </div>`
+        return
+      }
+
+      sec.classList.remove('hidden')
+      list.innerHTML = pesanan.map(p => `
+        <div class="flex items-center gap-2 py-2 
+          border-b border-gray-50">
+          <div class="flex-1 min-w-0">
+            <div class="text-gray-800 text-sm font-medium 
+              truncate">${p.nama_produk}</div>
+            <div class="text-orange-600 text-xs">
+              ${Helper.rupiah(p.harga_jual)}</div>
+          </div>
+          <div class="flex items-center gap-1">
+            <button onclick="kurangi(${p.id})"
+              class="w-6 h-6 bg-gray-100 hover:bg-red-100 
+              text-gray-600 hover:text-red-600 rounded-lg 
+              text-xs flex items-center justify-center">
+              <i class="fa-solid fa-minus"></i>
+            </button>
+            <span class="text-gray-800 text-sm font-semibold 
+              w-6 text-center">${p.jumlah}</span>
+            <button onclick="tambah(${p.id})"
+              class="w-6 h-6 bg-gray-100 hover:bg-orange-100 
+              text-gray-600 hover:text-orange-600 rounded-lg 
+              text-xs flex items-center justify-center">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+            <button onclick="hapusItem(${p.id})"
+              class="w-6 h-6 hover:bg-red-100 text-gray-300 
+              hover:text-red-500 rounded-lg text-xs flex 
+              items-center justify-center ml-1">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+      `).join('')
+    }
+
+    async function prosesPesanan() {
+      if (!pesanan.length) return
+      const btn = document.getElementById('btnProses')
+      const total = pesanan.reduce((s, p) =>
+        s + (p.harga_jual * p.jumlah), 0)
+
+      btn.innerHTML =
+        '<i class="fa-solid fa-spinner fa-spin"></i> Proses...'
+      btn.disabled = true
+
+      try {
+        const data = await Helper.fetch('/api/transaksi', {
+          method: 'POST',
+          body: JSON.stringify({
+            kasir_id: user.id,
+            member_id: document.getElementById('selectMember')
+              .value || null,
+            items: pesanan.map(p => ({
+              produk_id: p.id,
+              jumlah: p.jumlah,
+              harga_satuan: p.harga_jual
+            })),
+            metode_bayar: document.getElementById('metodeBayar')
+              .value,
+            modul: 'kantin'
+          })
+        })
+
+        if (data.success) {
+          document.getElementById('infoPesanan').textContent =
+            `No: ${data.data.no_transaksi}`
+          document.getElementById('infoTotal').textContent =
+            Helper.rupiah(total)
+          document.getElementById('modalSukses')
+            .classList.remove('hidden')
+        } else {
+          Helper.toast(data.message, 'error')
+        }
+      } catch {
+        Helper.toast('Gagal terhubung ke server!', 'error')
+      }
+
+      btn.innerHTML =
+        '<i class="fa-solid fa-check"></i> Proses Pesanan'
+      btn.disabled = false
+    }
+
+    function selesai() {
+      pesanan = []
+      updatePesanan()
+      document.getElementById('modalSukses')
+        .classList.add('hidden')
+    }
+
+    function showProdukManager() {
+      const list = document.getElementById('listMenuManager')
+      list.innerHTML = menuList.map(m => `
+        <div class="flex items-center justify-between p-3 
+          bg-gray-50 rounded-xl">
+          <div>
+            <div class="text-gray-800 text-sm font-medium">
+              ${m.nama_produk}</div>
+            <div class="text-gray-400 text-xs">
+              ${Helper.rupiah(m.harga_jual)} • 
+              Stok: ${m.stok}</div>
+          </div>
+          <span class="badge ${
+            m.ketersediaan === 'tersedia' 
+              ? 'badge-success' : 'badge-danger'
+          }">${m.ketersediaan}</span>
+        </div>
+      `).join('')
+      document.getElementById('modalMenu')
+        .classList.remove('hidden')
+    }
+
+    function hideMenuManager() {
+      document.getElementById('modalMenu').classList.add('hidden')
+    }
+
+    function showFormMenu() {
+      Helper.toast('Fitur tambah menu segera tersedia!', 'warning')
+      hideMenuManager()
+    }
+
+    loadMenu()
+  </script>
+
+</body>
+</html>
