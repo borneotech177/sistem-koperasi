@@ -1,45 +1,60 @@
 const Helper = {
-  // Format Rupiah
   rupiah: (n) => {
+    if (!n && n !== 0) return 'Rp 0'
     return 'Rp ' + Math.round(n).toLocaleString('id-ID')
   },
 
-  // Format tanggal
   tanggal: (date) => {
+    if (!date) return '-'
     return new Date(date).toLocaleDateString('id-ID', {
       day: 'numeric', month: 'long', year: 'numeric'
     })
   },
 
-  // Format tanggal + jam
   datetime: (date) => {
+    if (!date) return '-'
     return new Date(date).toLocaleString('id-ID', {
-      day: 'numeric', month: 'long', year: 'numeric',
+      day: 'numeric', month: 'short', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
     })
   },
 
-  // Tanggal hari ini (YYYY-MM-DD)
   today: () => new Date().toISOString().split('T')[0],
 
-  // Alert notifikasi
   toast: (msg, type = 'success') => {
-    const toast = document.getElementById('toast')
-    if (!toast) return
-    toast.textContent = msg
-    toast.className = `fixed top-4 right-4 z-50 px-4 py-3 
-      rounded-xl text-sm font-medium shadow-lg transition-all ${
-      type === 'success' 
-        ? 'bg-green-600 text-white' 
-        : type === 'error'
-        ? 'bg-red-600 text-white'
-        : 'bg-yellow-500 text-white'
-    }`
+    let toast = document.getElementById('toast')
+    if (!toast) {
+      toast = document.createElement('div')
+      toast.id = 'toast'
+      document.body.appendChild(toast)
+    }
+
+    const icons = {
+      success: 'fa-circle-check',
+      error: 'fa-circle-xmark',
+      warning: 'fa-triangle-exclamation',
+      info: 'fa-circle-info'
+    }
+
+    const colors = {
+      success: 'background:#166534;color:white',
+      error: 'background:#991B1B;color:white',
+      warning: 'background:#92400E;color:white',
+      info: 'background:#1D4ED8;color:white'
+    }
+
+    toast.style.cssText = colors[type] || colors.info
+    toast.innerHTML = `
+      <i class="fa-solid ${icons[type] || icons.info}"></i>
+      ${msg}`
     toast.classList.remove('hidden')
-    setTimeout(() => toast.classList.add('hidden'), 3000)
+
+    clearTimeout(toast._timeout)
+    toast._timeout = setTimeout(() => {
+      toast.classList.add('hidden')
+    }, 3000)
   },
 
-  // Fetch dengan token
   fetch: async (url, options = {}) => {
     const token = Auth.getToken()
     const res = await fetch(CONFIG.API + url, {
@@ -53,8 +68,19 @@ const Helper = {
     return res.json()
   },
 
-  // Konfirmasi hapus
-  confirm: (msg = 'Yakin ingin menghapus data ini?') => {
+  confirm: (msg = 'Yakin ingin melakukan aksi ini?') => {
     return window.confirm(msg)
+  },
+
+  loading: (el, show = true) => {
+    if (!el) return
+    if (show) {
+      el.dataset.original = el.innerHTML
+      el.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>'
+      el.disabled = true
+    } else {
+      el.innerHTML = el.dataset.original || el.innerHTML
+      el.disabled = false
+    }
   }
 }
