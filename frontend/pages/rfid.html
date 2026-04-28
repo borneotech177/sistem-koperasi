@@ -303,6 +303,7 @@
 
   <script>
     Auth.check()
+    Auth.checkRole('rfid')
 
     document.getElementById('sidebar').innerHTML =
       renderSidebar('rfid')
