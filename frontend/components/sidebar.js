@@ -39,7 +39,7 @@ function renderSidebar(activePage = 'dashboard') {
     nav += `
       <p class="text-gray-400 text-xs font-semibold uppercase 
         tracking-wider px-3 mb-1 mt-4 first:mt-0">${group}</p>`
-    items.forEach(p => {
+    items.filter(p => aksesUser.includes(p.id)).forEach(p => {
       const isActive = activePage === p.id
       nav += `
         <a href="${p.href}" 
