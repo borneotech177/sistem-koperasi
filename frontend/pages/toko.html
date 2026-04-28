@@ -267,23 +267,28 @@
     let keranjang = []
     let lastTransaksi = null
 
-    async function loadProduk() {
-      try {
-        const data = await Helper.fetch(
-          '/api/transaksi?modul=toko&limit=1')
-        // Dummy produk - nanti dari API produk
-        produkList = [
-          { id:1, kode_produk:'PRD-001', nama_produk:'Beras 5kg', harga_jual:65000, stok:20, satuan:'kg' },
-          { id:2, kode_produk:'PRD-002', nama_produk:'Minyak Goreng 1L', harga_jual:18000, stok:15, satuan:'botol' },
-          { id:3, kode_produk:'PRD-003', nama_produk:'Gula Pasir 1kg', harga_jual:14000, stok:30, satuan:'kg' },
-          { id:4, kode_produk:'PRD-004', nama_produk:'Teh Celup', harga_jual:8000, stok:25, satuan:'kotak' },
-          { id:5, kode_produk:'PRD-005', nama_produk:'Kopi Sachet', harga_jual:3000, stok:50, satuan:'pcs' },
-          { id:6, kode_produk:'PRD-006', nama_produk:'Sabun Mandi', harga_jual:5000, stok:40, satuan:'pcs' },
-        ]
-        renderProduk(produkList)
-      } catch {
-        Helper.toast('Gagal memuat produk!', 'error')
-      }
+    async function loadMenu() {
+  try {
+    // Load anggota untuk dropdown
+    const dataA = await Helper.fetch('/api/anggota')
+    const anggota = dataA.data || []
+    const sel = document.getElementById('selectMember')
+    anggota.forEach(a => {
+      sel.innerHTML += `
+        <option value="${a.id}">
+          ${a.nama} — ${a.no_anggota}
+        </option>`
+    })
+
+    // Load menu dari API
+    const dataM = await Helper.fetch(
+      '/api/produk?modul=kantin&status=aktif')
+    menuList = dataM.data || []
+    renderMenu(menuList)
+
+  } catch {
+    Helper.toast('Gagal memuat menu!', 'error')
+  }
     }
 
     function renderProduk(list) {
