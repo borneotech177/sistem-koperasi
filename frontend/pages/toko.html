@@ -267,19 +267,15 @@
     let keranjang = []
     let lastTransaksi = null
 
-    async function loadMenu() {
+    async function loadProduk() {
   try {
-    // Load anggota untuk dropdown
-    const dataA = await Helper.fetch('/api/anggota')
-    const anggota = dataA.data || []
-    const sel = document.getElementById('selectMember')
-    anggota.forEach(a => {
-      sel.innerHTML += `
-        <option value="${a.id}">
-          ${a.nama} — ${a.no_anggota}
-        </option>`
-    })
-
+    const data = await Helper.fetch('/api/produk?modul=toko&status=aktif')
+    produkList = data.data || []
+    renderProduk(produkList)
+  } catch {
+    Helper.toast('Gagal memuat produk!', 'error')
+  }
+    }
     // Load menu dari API
     const dataM = await Helper.fetch(
       '/api/produk?modul=kantin&status=aktif')
