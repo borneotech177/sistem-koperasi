@@ -315,6 +315,7 @@
 
   <script>
     Auth.check()
+    Auth.checkRole('produk')
 
     document.getElementById('sidebar').innerHTML =
       renderSidebar('produk')
