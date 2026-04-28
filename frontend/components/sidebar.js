@@ -1,5 +1,6 @@
 function renderSidebar(activePage = 'dashboard') {
   const user = Auth.getUser()
+  const aksesUser = Auth.getAkses()
 
   const menus = [
     {
