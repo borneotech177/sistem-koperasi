@@ -13,6 +13,7 @@ function renderSidebar(activePage = 'dashboard') {
       items: [
         { id: 'anggota', label: 'Anggota', icon: 'fa-users', href: 'anggota.html' },
         { id: 'pinjaman', label: 'Pinjaman KSP', icon: 'fa-hand-holding-dollar', href: 'pinjaman.html' },
+        { id: 'produk', label: 'Manajemen Produk', icon: 'fa-box', href: 'produk.html' },
       ]
     },
     {
@@ -21,6 +22,7 @@ function renderSidebar(activePage = 'dashboard') {
         { id: 'toko', label: 'ePOS Toko', icon: 'fa-cart-shopping', href: 'toko.html' },
         { id: 'kantin', label: 'eKantin', icon: 'fa-utensils', href: 'kantin.html' },
         { id: 'rfid', label: 'RFID Member', icon: 'fa-id-card', href: 'rfid.html' },
+        { id: 'produk', label: 'Manajemen Produk', icon: 'fa-box', href: 'produk.html' },
       ]
     },
     {
