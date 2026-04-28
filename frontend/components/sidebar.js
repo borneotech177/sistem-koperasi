@@ -22,6 +22,7 @@ function renderSidebar(activePage = 'dashboard') {
         { id: 'toko', label: 'ePOS Toko', icon: 'fa-cart-shopping', href: 'toko.html' },
         { id: 'kantin', label: 'eKantin', icon: 'fa-utensils', href: 'kantin.html' },
         { id: 'rfid', label: 'RFID Member', icon: 'fa-id-card', href: 'rfid.html' },
+      ]
     },
     {
       group: 'Laporan',
