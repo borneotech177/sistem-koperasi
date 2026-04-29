@@ -22,12 +22,14 @@ const anggotaRoutes = require('./routes/anggota');
 const transaksiRoutes = require('./routes/transaksi');
 const produkRoutes = require('./routes/produk');
 const userRoutes = require('./routes/user');
+const rfidRoutes = require('./routes/rfid');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/anggota', anggotaRoutes);
 app.use('/api/transaksi', transaksiRoutes);
 app.use('/api/produk', produkRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/rfid', rfidRoutes);
 
 // Test endpoint
 app.get('/', (req, res) => {
