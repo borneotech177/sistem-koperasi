@@ -512,13 +512,43 @@
     }
 
     async function simpanKartu() {
-      const anggota = document.getElementById('k_anggota').value
-      const nokartu = document.getElementById('k_nokartu').value
+  const anggota_id = document.getElementById('k_anggota').value
+  const no_kartu = document.getElementById('k_nokartu').value
+  const tanggal_terbit = document.getElementById('k_terbit').value
+  const tanggal_expired = document.getElementById('k_expired').value
+  const saldo = parseFloat(
+    document.getElementById('k_saldo').value) || 0
 
-      if (!anggota || !nokartu) {
-        Helper.toast('Anggota dan no. kartu wajib diisi!', 'error')
-        return
-      }
+  if (!anggota_id || !no_kartu) {
+    Helper.toast('Anggota dan no. kartu wajib diisi!', 'error')
+    return
+  }
+
+  const btn = document.getElementById('btnSimpanKartu')
+  Helper.loading(btn, true)
+
+  try {
+    const data = await Helper.fetch('/api/rfid', {
+      method: 'POST',
+      body: JSON.stringify({
+        anggota_id, no_kartu,
+        tanggal_terbit, tanggal_expired, saldo
+      })
+    })
+
+    if (data.success) {
+      Helper.toast('Kartu berhasil diterbitkan!')
+      hideFormKartu()
+      loadData()
+    } else {
+      Helper.toast(data.message, 'error')
+    }
+  } catch {
+    Helper.toast('Gagal menerbitkan kartu!', 'error')
+  }
+
+  Helper.loading(btn, false)
+}
 
       Helper.toast('Kartu berhasil diterbitkan!', 'success')
       hideFormKartu()
