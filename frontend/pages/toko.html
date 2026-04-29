@@ -269,23 +269,14 @@
     let lastTransaksi = null
 
     async function loadProduk() {
-  try {
-    const data = await Helper.fetch('/api/produk?modul=toko&status=aktif')
-    produkList = data.data || []
-    renderProduk(produkList)
-  } catch {
-    Helper.toast('Gagal memuat produk!', 'error')
-  }
-    }
-    // Load menu dari API
-    const dataM = await Helper.fetch(
-      '/api/produk?modul=kantin&status=aktif')
-    menuList = dataM.data || []
-    renderMenu(menuList)
-
-  } catch {
-    Helper.toast('Gagal memuat menu!', 'error')
-  }
+      try {
+        const data = await Helper.fetch(
+          '/api/produk?modul=toko&status=aktif')
+        produkList = data.data || []
+        renderProduk(produkList)
+      } catch {
+        Helper.toast('Gagal memuat produk!', 'error')
+      }
     }
 
     function renderProduk(list) {
@@ -352,9 +343,7 @@
       updateKeranjang()
     }
 
-    function tambah(id) {
-      tambahKeranjang(id)
-    }
+    function tambah(id) { tambahKeranjang(id) }
 
     function hapusItem(id) {
       keranjang = keranjang.filter(k => k.id !== id)
@@ -391,7 +380,8 @@
           <div class="text-center py-6">
             <i class="fa-solid fa-cart-shopping 
               text-gray-200 text-3xl mb-2"></i>
-            <p class="text-gray-400 text-sm">Keranjang kosong</p>
+            <p class="text-gray-400 text-sm">
+              Keranjang kosong</p>
           </div>`
         return
       }
@@ -438,9 +428,7 @@
       const total = keranjang.reduce((s, k) =>
         s + (k.harga_jual * k.jumlah), 0)
 
-      btn.innerHTML = 
-        '<i class="fa-solid fa-spinner fa-spin"></i> Proses...'
-      btn.disabled = true
+      Helper.loading(btn, true)
 
       try {
         const data = await Helper.fetch('/api/transaksi', {
@@ -472,9 +460,7 @@
         Helper.toast('Gagal terhubung ke server!', 'error')
       }
 
-      btn.innerHTML =
-        '<i class="fa-solid fa-check"></i> Proses Transaksi'
-      btn.disabled = false
+      Helper.loading(btn, false)
     }
 
     function selesai() {
@@ -489,21 +475,20 @@
 
     function showProdukManager() {
       const list = document.getElementById('listProdukManager')
-      list.innerHTML = produkList.map(p => `
-        <div class="flex items-center justify-between p-3 
-          bg-gray-50 rounded-xl">
-          <div>
-            <div class="text-gray-800 text-sm font-medium">
-              ${p.nama_produk}</div>
-            <div class="text-gray-400 text-xs">
-              ${Helper.rupiah(p.harga_jual)} • 
-              Stok: ${p.stok}</div>
-          </div>
-          <button class="text-green-600 hover:text-green-700">
-            <i class="fa-solid fa-pen text-sm"></i>
-          </button>
-        </div>
-      `).join('')
+      list.innerHTML = produkList.length
+        ? produkList.map(p => `
+          <div class="flex items-center justify-between p-3 
+            bg-gray-50 rounded-xl">
+            <div>
+              <div class="text-gray-800 text-sm font-medium">
+                ${p.nama_produk}</div>
+              <div class="text-gray-400 text-xs">
+                ${Helper.rupiah(p.harga_jual)} • 
+                Stok: ${p.stok}</div>
+            </div>
+          </div>`).join('')
+        : '<p class="text-gray-400 text-sm text-center py-4">Belum ada produk</p>'
+
       document.getElementById('modalProduk')
         .classList.remove('hidden')
     }
@@ -513,9 +498,7 @@
     }
 
     function showFormProduk() {
-      hideProdukManager()
-      document.getElementById('modalFormProduk')
-        .classList.remove('hidden')
+      window.location.href = 'produk.html'
     }
 
     function hideFormProduk() {
@@ -523,13 +506,4 @@
         .classList.add('hidden')
     }
 
-    async function simpanProduk() {
-      Helper.toast('Fitur segera tersedia!', 'warning')
-      hideFormProduk()
-    }
-
     loadProduk()
-  </script>
-
-</body>
-</html>
