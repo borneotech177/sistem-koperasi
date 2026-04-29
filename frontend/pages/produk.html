@@ -316,6 +316,12 @@
   <script>
     Auth.check()
     Auth.checkRole('produk')
+    // Sembunyikan tombol aksi jika kasir
+const user = Auth.getUser()
+if (user.role === 'kasir') {
+  document.querySelector('button[onclick="showForm()"]')
+    .classList.add('hidden')
+}
 
     document.getElementById('sidebar').innerHTML =
       renderSidebar('produk')
