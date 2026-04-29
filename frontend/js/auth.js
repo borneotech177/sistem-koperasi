@@ -15,20 +15,22 @@ const Auth = {
 
   // ---- HAK AKSES PER ROLE ----
   AKSES: {
-    admin:   [
-      'dashboard', 'anggota', 'pinjaman', 'produk',
-      'toko', 'kantin', 'rfid', 'laporan', 'users'
-    ],
-    petugas: [
-      'dashboard', 'anggota', 'pinjaman', 'laporan'
-    ],
-    kasir:   [
-      'dashboard', 'toko', 'kantin', 'laporan'
-    ],
-    member:  [
-      'dashboard'
-    ]
-  },
+  admin:   [
+    'dashboard', 'anggota', 'pinjaman', 'produk',
+    'toko', 'kantin', 'rfid', 'laporan', 'users'
+  ],
+  petugas: [
+    'dashboard', 'anggota', 'pinjaman',
+    'produk', 'laporan'
+  ],
+  kasir:   [
+    'dashboard', 'toko', 'kantin',
+    'produk', 'laporan'
+  ],
+  member:  [
+    'dashboard'
+  ]
+},
 
   // ---- CEK LOGIN ----
   check: () => {
